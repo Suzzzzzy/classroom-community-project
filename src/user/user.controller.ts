@@ -15,7 +15,7 @@ import {UpdateUserDto} from './dto/update-user.dto';
 import {LoginUserDto} from "./dto/login-user.dto";
 import * as bcrypt from 'bcrypt';
 import {JwtService} from "@nestjs/jwt";
-import { AuthGuard } from '@nestjs/passport';
+import { AuthGuard } from './auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -25,7 +25,7 @@ export class UserController {
   ) {}
 
   @Post('signup')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard)
   async create(@Body() createUserDto: CreateUserDto) {
     const {email, password, firstName, lastName, profileImageUrl} = createUserDto;
     const hasEmail = await this.userService.findByEmail(email);
