@@ -19,20 +19,20 @@ export class User extends BaseEntity{
 
     @Column({ unique: true })
     @Column()
-    email: String;
+    email: string;
 
     @Column()
     @Exclude()
-    password: String;
+    password: string;
 
     @Column()
-    firstName: String;
+    firstName: string;
 
     @Column()
-    lastName: String;
+    lastName: string;
 
     @Column()
-    profileImageUrl: String;
+    profileImageUrl: string;
 
     @CreateDateColumn({ name: 'create_at', comment: '생성일자' })
     createdAt: Date;

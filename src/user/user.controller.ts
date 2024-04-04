@@ -16,6 +16,7 @@ import {LoginUserDto} from "./dto/login-user.dto";
 import * as bcrypt from 'bcrypt';
 import {JwtService} from "@nestjs/jwt";
 import { AuthGuard } from './auth.guard';
+import {mapToDefaultUserDto, mapToPublicUserDto} from "./dto/user.mapper";
 
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -34,7 +35,7 @@ export class UserController {
     }
     const userEntity = await this.userService.create(createUserDto);
 
-    return '회원가입성공'
+    return mapToDefaultUserDto(userEntity)
   }
 
   @Post('signin')
@@ -63,7 +64,23 @@ export class UserController {
   async updateProfile(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
     const {password, firstName, lastName, profileImageUrl} = updateUserDto;
     const user = req.user
-    return this.userService.updateUser(user, updateUserDto)
+    const result = await this.userService.updateUser(user, updateUserDto)
+    return mapToDefaultUserDto(result)
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('profile/:id?')
+  async findUser(@Req() req, @Param('id') id?: string): Promise<any> {
+    if (id != null) {
+      const userId = parseInt(id, 10);
+      if (userId === req.user.id) {
+        return mapToDefaultUserDto(req.user)
+      }
+      const user = await this.userService.findByUserId(userId);
+      return mapToPublicUserDto(user)
+    } else {
+      return mapToDefaultUserDto(req.user)
+    }
   }
 
   @Get()
