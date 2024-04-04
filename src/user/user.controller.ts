@@ -1,13 +1,13 @@
 import {
-  Body,
+  Body, ClassSerializerInterceptor,
   ConflictException,
   Controller,
   Delete,
   Get,
   Param,
   Patch,
-  Post,
-  UnauthorizedException, UseGuards
+  Post, Put, Req,
+  UnauthorizedException, UseGuards, UseInterceptors, UsePipes, ValidationPipe
 } from '@nestjs/common';
 import {UserService} from './user.service';
 import {CreateUserDto} from './dto/create-user.dto';
@@ -18,6 +18,7 @@ import {JwtService} from "@nestjs/jwt";
 import { AuthGuard } from './auth.guard';
 
 @Controller('user')
+@UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(
       private readonly userService: UserService,
@@ -25,7 +26,6 @@ export class UserController {
   ) {}
 
   @Post('signup')
-  @UseGuards(AuthGuard)
   async create(@Body() createUserDto: CreateUserDto) {
     const {email, password, firstName, lastName, profileImageUrl} = createUserDto;
     const hasEmail = await this.userService.findByEmail(email);
@@ -56,6 +56,14 @@ export class UserController {
       accessToken: accessToken,
       refreshToken: ""
     }
+  }
+
+  @UseGuards(AuthGuard)
+  @Put('profile')
+  async updateProfile(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
+    const {password, firstName, lastName, profileImageUrl} = updateUserDto;
+    const user = req.user
+    return this.userService.updateUser(user, updateUserDto)
   }
 
   @Get()

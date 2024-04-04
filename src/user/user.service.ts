@@ -16,15 +16,24 @@ export class UserService {
     return await this.userRepository.save(userEntity)
   }
 
-  async findByEmail(email: string): Promise<User | undefined> {
+  async findByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOne( { where: {email} });
     if (user) {
       return user;
     }
   }
 
-  async findByUserId(userId: number) {
-    return await this.userRepository.findOne({ where: { id: userId } });
+  async findByUserId(userId: number): Promise<User> {
+    const user = await this.userRepository.findOne({where: {id: userId}});
+    if (!user) {
+      throw new Error('사용자를 찾을 수 없습니다.')
+    }
+    return user
+  }
+
+  async updateUser(user: User, data: Partial<User>): Promise<User> {
+    Object.assign(user, data);
+    return this.userRepository.save(user);
   }
 
   findAll(): Promise<User[]> {
