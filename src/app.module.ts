@@ -9,6 +9,7 @@ import {RoleModule} from "./role/role.module";
 import {Space} from "./space/entities/space.entity";
 import {Role} from "./role/entities/role.entity";
 import {RoleAssignment} from "./role/entities/role-assignment";
+import {AccessCode} from "./space/entities/accesscode.entity";
 
 
 @Module({
@@ -20,7 +21,7 @@ import {RoleAssignment} from "./role/entities/role-assignment";
         username: 'root',
         password: 'root',
         database: 'classum',
-        entities: [User, Space, Role, RoleAssignment],
+        entities: [User, Space, Role, RoleAssignment, AccessCode],
         synchronize: true,
         logging: true,
       }),

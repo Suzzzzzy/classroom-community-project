@@ -18,7 +18,7 @@ import {JwtService} from "@nestjs/jwt";
 import { AuthGuard } from './auth.guard';
 import {mapToDefaultUserDto, mapToPublicUserDto} from "./dto/user.mapper";
 
-@Controller('user')
+@Controller('users')
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(

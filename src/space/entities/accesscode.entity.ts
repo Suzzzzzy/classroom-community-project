@@ -1,38 +1,33 @@
 import {
-    BaseEntity,
-    BeforeInsert, BeforeUpdate,
     Column,
     CreateDateColumn,
     DeleteDateColumn,
-    Entity, OneToMany,
+    Entity, JoinColumn, ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
 import {Role} from "../../role/entities/role.entity";
+import {Space} from "./space.entity";
 
-@Entity({name: 'space'})
-export class Space {
+@Entity({name: 'accessCode'})
+export class AccessCode {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
-    userId: number;
+    accessType: string;
 
     @Column()
-    name: string;
+    accessCode: string;
 
-    @Column()
-    logoImageUrl: string;
+    @ManyToOne(() => Space, space => space.roles)
+    @JoinColumn([{name: 'space_id', referencedColumnName: 'id'}])
+    space: Space;
 
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
-
     @DeleteDateColumn()
     deletedAt?: Date | null;
-
-    @OneToMany(() => Role, (role) => role.space)
-    roles: Role[];
 }

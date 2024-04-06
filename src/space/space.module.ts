@@ -6,10 +6,11 @@ import {Role} from "../role/entities/role.entity";
 import {Space} from "./entities/space.entity";
 import {RoleModule} from "../role/role.module";
 import {RoleAssignment} from "../role/entities/role-assignment";
+import {AccessCode} from "./entities/accesscode.entity";
 
 @Module({
   imports: [
-      TypeOrmModule.forFeature([Space, Role, RoleAssignment]),
+      TypeOrmModule.forFeature([Space, Role, RoleAssignment, AccessCode]),
       RoleModule
   ],
   controllers: [SpaceController],

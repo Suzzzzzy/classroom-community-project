@@ -15,8 +15,9 @@ import { UpdateSpaceDto } from './dto/update-space.dto';
 import any = jasmine.any;
 import {AuthGuard} from "../user/auth.guard";
 import {mapToSpaceResponseDto} from "../role/dto/space.mapper";
+import {JoinSpaceDto} from "./dto/join-space.dto";
 
-@Controller('space')
+@Controller('spaces')
 @UseGuards(AuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class SpaceController {
@@ -26,12 +27,8 @@ export class SpaceController {
   async createSpace(@Req() req:any, @Body() createSpaceDto: CreateSpaceDto) {
     const {name, logoImageUrl} = createSpaceDto
     const user = req.user
-    try {
-      const result = await this.spaceService.create(user, createSpaceDto);
-      return mapToSpaceResponseDto(result);
-    } catch (error){
-
-    }
+      const [space, adminAccessCode, memberAccessCode] = await this.spaceService.create(user, createSpaceDto);
+      return mapToSpaceResponseDto(space, adminAccessCode, memberAccessCode);
   }
 
   @Delete(':id')
@@ -41,9 +38,13 @@ export class SpaceController {
     return this.spaceService.deleteSpace(user, spaceId);
   }
 
-  @Get()
-  findAll() {
-    return this.spaceService.findAll();
+  @Post('/:id/participants')
+  async JoinSpace(@Req() req: any, @Param('id') id: string, @Body() joinSpaceDto: JoinSpaceDto) {
+    const user = req.user
+    const spaceId = parseInt(id, 10)
+    const {accessCode, myRole} = joinSpaceDto
+    return this.spaceService.joinSpace(user, spaceId, joinSpaceDto)
+
   }
 
   @Get(':id')
