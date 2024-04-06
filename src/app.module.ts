@@ -22,6 +22,7 @@ import {RoleAssignment} from "./role/entities/role-assignment";
         database: 'classum',
         entities: [User, Space, Role, RoleAssignment],
         synchronize: true,
+        logging: true,
       }),
       UserModule,
       SpaceModule,

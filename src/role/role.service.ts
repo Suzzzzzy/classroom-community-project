@@ -21,7 +21,7 @@ export class RoleService {
         space: space,
         accessType: accessType,
         name: name,
-      })
+      });
   }
 
   async assign(role: Role, user: User, isOwner: number) {
@@ -29,13 +29,20 @@ export class RoleService {
       role: role,
       user: user,
       isOwner: isOwner
-    })
+    });
   }
 
   async findBySpaceAndName(spaceId: number, name: string): Promise<Role> {
     return this.roleRepository.findOne({where: {name, space: {id: spaceId}}});
   }
 
+  async findRoleAssignment(spaceId: number, userId: number): Promise<RoleAssignment | undefined> {
+    return await this.roleAssignmentRepository.createQueryBuilder('roleAssignment')
+        .innerJoin('roleAssignment.role', 'role')
+        .where('role.space_id = :spaceId', {spaceId})
+        .andWhere('roleAssignment.user_id = :userId', {userId})
+        .getOne();
+  }
 
 
   update(id: number, updateRoleDto: UpdateRoleDto) {

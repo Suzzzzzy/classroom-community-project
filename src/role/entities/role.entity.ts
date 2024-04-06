@@ -31,13 +31,10 @@ export class Role {
     @DeleteDateColumn()
     deletedAt?: Date | null;
 
-    @ManyToOne(() => Space, space => space.roles, {
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-    })
+    @ManyToOne(() => Space, space => space.roles)
     @JoinColumn([{name: 'space_id', referencedColumnName: 'id'}])
     space: Space;
 
-    @OneToMany(() => RoleAssignment, (roleAssignment) => roleAssignment.role)
+    @OneToMany(() => RoleAssignment, (roleAssignment) => roleAssignment.role, { cascade: true })
     roleAssignments: RoleAssignment[];
 }

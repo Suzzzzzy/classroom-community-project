@@ -1,4 +1,12 @@
-import {Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {
+    Column,
+    CreateDateColumn, DeleteDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from "typeorm";
 import {User} from "../../user/entity/user.entity";
 import {Role} from "./role.entity";
 
@@ -17,4 +25,10 @@ export class RoleAssignment {
 
     @Column({type: 'tinyint', comment: '소유자 권한 여부(0: 소유자 아님, 1: 소유자)', default: 0})
     isOwner: number;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt?: Date | null;
 }
