@@ -4,6 +4,7 @@ import {PublicUserDto} from "./public-user.dto";
 
 export function mapToDefaultUserDto(user: User): DefaultUserDto {
     return {
+        id: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
