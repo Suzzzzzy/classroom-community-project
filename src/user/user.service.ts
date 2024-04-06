@@ -3,27 +3,27 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
-import {User} from "./entity/user";
+import {UserEntity} from "./entity/user.entity";
 
 @Injectable()
 export class UserService {
   constructor(
-      @InjectRepository(User)
-      private userRepository: Repository<User>,
+      @InjectRepository(UserEntity)
+      private userRepository: Repository<UserEntity>,
   ) {}
   async create(createUserDto: CreateUserDto) {
     const userEntity = await this.userRepository.create(createUserDto)
     return await this.userRepository.save(userEntity)
   }
 
-  async findByEmail(email: string): Promise<User> {
+  async findByEmail(email: string): Promise<UserEntity> {
     const user = await this.userRepository.findOne( { where: {email} });
     if (user) {
       return user;
     }
   }
 
-  async findByUserId(userId: number): Promise<User> {
+  async findByUserId(userId: number): Promise<UserEntity> {
     const user = await this.userRepository.findOne({where: {id: userId}});
     if (!user) {
       throw new Error('사용자를 찾을 수 없습니다.')
@@ -31,12 +31,12 @@ export class UserService {
     return user
   }
 
-  async updateUser(user: User, data: Partial<User>): Promise<User> {
+  async updateUser(user: UserEntity, data: Partial<UserEntity>): Promise<UserEntity> {
     Object.assign(user, data);
     return this.userRepository.save(user);
   }
 
-  findAll(): Promise<User[]> {
+  findAll(): Promise<UserEntity[]> {
     return this.userRepository.find();
   }
 

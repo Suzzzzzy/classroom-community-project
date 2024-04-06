@@ -6,6 +6,7 @@ import {Space} from "./entities/space.entity";
 import {Repository} from "typeorm";
 import {RoleAccessType} from "../role/type/role-access-type";
 import {RoleService} from "../role/role.service";
+import {generateAccessCode} from "../utils/generator";
 
 @Injectable()
 export class SpaceService {
@@ -27,12 +28,12 @@ export class SpaceService {
 
     // 관리자 역할 생성
     await Promise.all(createSpaceDto.adminRoles.map(async (roleName) => {
-      await this.roleService.create(newSpace.id, RoleAccessType.ADMIN, roleName);
+      await this.roleService.create(newSpace, RoleAccessType.ADMIN, roleName);
     }));
 
     // 멤버 역할 생성
     await Promise.all(createSpaceDto.memberRoles.map(async (roleName) => {
-      await this.roleService.create(newSpace.id, RoleAccessType.MEMBER, roleName);
+      await this.roleService.create(newSpace, RoleAccessType.MEMBER, roleName);
     }));
 
     return newSpace

@@ -8,6 +8,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
+import {Role} from "../../role/entities/role.entity";
 
 @Entity({name: 'space'})
 export class Space {
@@ -37,4 +38,7 @@ export class Space {
 
     @DeleteDateColumn()
     deletedAt?: Date | null;
+
+    @OneToMany(() => Role, (role) => role.space)
+    roles: Role[];
 }

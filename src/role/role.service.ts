@@ -1,37 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
+import {Injectable} from '@nestjs/common';
+import {UpdateRoleDto} from './dto/update-role.dto';
 import {InjectRepository} from "@nestjs/typeorm";
 import {DataSource, Repository} from "typeorm";
 import {Role} from "./entities/role.entity";
 import {RoleAccessType} from "./type/role-access-type";
+import {Space} from "../space/entities/space.entity";
 
 @Injectable()
 export class RoleService {
   constructor(
       @InjectRepository(Role)
       private roleRepository: Repository<Role>,
-      private readonly dataSource: DataSource,
   ) {}
-  async create(spaceId: number, accessType: RoleAccessType, name: string) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
+  async create(space: Space, accessType: RoleAccessType, name: string) {
       // 역할 저장
-      const newRole = await queryRunner.manager.save(Role, {
-        space: {id: spaceId},
+    return await this.roleRepository.save({
+        space: space,
         accessType: accessType,
         name: name,
-      });
-      await queryRunner.commitTransaction();
-      return newRole
-    } catch (error) {
-        await queryRunner.rollbackTransaction();
-        return { status: 404, message: error.message };
-      } finally {
-        await queryRunner.release();
-      }
+      })
     }
 
 

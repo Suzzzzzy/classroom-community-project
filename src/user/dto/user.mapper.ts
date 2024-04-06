@@ -1,8 +1,8 @@
 import {DefaultUserDto} from "./default-user.dto";
-import {User} from "../entity/user";
+import {UserEntity} from "../entity/user.entity";
 import {PublicUserDto} from "./public-user.dto";
 
-export function mapToDefaultUserDto(user: User): DefaultUserDto {
+export function mapToDefaultUserDto(user: UserEntity): DefaultUserDto {
     return {
         email: user.email,
         firstName: user.firstName,
@@ -11,7 +11,7 @@ export function mapToDefaultUserDto(user: User): DefaultUserDto {
     };
 }
 
-export function mapToPublicUserDto(user: User): PublicUserDto {
+export function mapToPublicUserDto(user: UserEntity): PublicUserDto {
     return {
         firstName: user.firstName,
         lastName: user.lastName,

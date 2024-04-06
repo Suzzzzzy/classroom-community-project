@@ -1,4 +1,4 @@
-function generateAccessCode(): string {
+export function generateAccessCode(): string {
     const length = 8;
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
