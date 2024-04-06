@@ -7,19 +7,22 @@ import {
   Param,
   Delete,
   UseInterceptors,
-  ClassSerializerInterceptor
+  ClassSerializerInterceptor, UseGuards
 } from '@nestjs/common';
 import { SpaceService } from './space.service';
 import { CreateSpaceDto } from './dto/create-space.dto';
 import { UpdateSpaceDto } from './dto/update-space.dto';
+import any = jasmine.any;
+import {AuthGuard} from "../user/auth.guard";
 
 @Controller('space')
+@UseGuards(AuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class SpaceController {
   constructor(private readonly spaceService: SpaceService) {}
 
   @Post()
-  create(@Req req, @Body() createSpaceDto: CreateSpaceDto) {
+  create(@Req() req:any, @Body() createSpaceDto: CreateSpaceDto) {
     const {name, logoImageUrl} = createSpaceDto
     const user = req.user
     return this.spaceService.create(user.id, createSpaceDto);

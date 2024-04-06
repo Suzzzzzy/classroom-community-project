@@ -4,6 +4,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import {InjectRepository} from "@nestjs/typeorm";
 import {DataSource, Repository} from "typeorm";
 import {Role} from "./entities/role.entity";
+import {RoleAccessType} from "./type/role-access-type";
 
 @Injectable()
 export class RoleService {
@@ -12,7 +13,7 @@ export class RoleService {
       private roleRepository: Repository<Role>,
       private readonly dataSource: DataSource,
   ) {}
-  async create(spaceId: number, accessType: string, name: string) {
+  async create(spaceId: number, accessType: RoleAccessType, name: string) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
