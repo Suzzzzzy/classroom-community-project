@@ -23,11 +23,22 @@ export class SpaceController {
   constructor(private readonly spaceService: SpaceService) {}
 
   @Post()
-  async create(@Req() req:any, @Body() createSpaceDto: CreateSpaceDto) {
+  async createSpace(@Req() req:any, @Body() createSpaceDto: CreateSpaceDto) {
     const {name, logoImageUrl} = createSpaceDto
     const user = req.user
-    const result = await this.spaceService.create(user, createSpaceDto);
-    return mapToSpaceResponseDto(result)
+    try {
+      const result = await this.spaceService.create(user, createSpaceDto);
+      return mapToSpaceResponseDto(result);
+    } catch (error){
+
+    }
+  }
+
+  @Delete(':id')
+  async deleteSpace(@Req() req:any, @Param('id') id: string) {
+    const user = req.user
+    const spaceId = parseInt(id, 10);
+    return this.spaceService.deleteSpace(user, spaceId);
   }
 
   @Get()
@@ -45,8 +56,5 @@ export class SpaceController {
     return this.spaceService.update(+id, updateSpaceDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.spaceService.remove(+id);
-  }
+
 }
