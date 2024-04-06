@@ -127,14 +127,18 @@ export class SpaceService {
     return space
   }
 
-  async joinSpace(user: User, spaceId: number, joinSpaceDto: JoinSpaceDto) {
+  async joinSpace(user: User, spaceId: number, joinSpaceDto: JoinSpaceDto){
     await this.findOne(spaceId);
     const isJoined = await this.roleService.findRoleAssignment(spaceId, user.id);
     if (isJoined) {
       throw new ConflictException('이미 공간에 참여중입니다.')
     }
-
-
+    const accessAuthorization = await this.accessCodeRepository.findOne({where: {accessCode: joinSpaceDto.accessCode}})
+    const role = await this.roleService.findBySpaceAndName(spaceId, joinSpaceDto.myRole)
+    if (accessAuthorization.accessType != role.accessType) {
+      throw new ForbiddenException('역할 권한이 없습니다.')
+    }
+    return this.roleAssignmentRepository.save({user: user, role: role})
   }
 
   async findAccessCode(spaceId: number): Promise<AccessCode[]>{

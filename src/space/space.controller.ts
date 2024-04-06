@@ -43,8 +43,8 @@ export class SpaceController {
     const user = req.user
     const spaceId = parseInt(id, 10)
     const {accessCode, myRole} = joinSpaceDto
-    return this.spaceService.joinSpace(user, spaceId, joinSpaceDto)
-
+    await this.spaceService.joinSpace(user, spaceId, joinSpaceDto)
+    return '참여 완료'
   }
 
   @Get(':id')
