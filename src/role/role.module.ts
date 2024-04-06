@@ -5,10 +5,14 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {Space} from "../space/entities/space.entity";
 import {Role} from "./entities/role.entity";
 import {RoleAssignment} from "./entities/role-assignment";
+import {SpaceModule} from "../space/space.module";
+import {UserModule} from "../user/user.module";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Space, Role, RoleAssignment]),
+    TypeOrmModule.forFeature([Role, RoleAssignment]),
+      SpaceModule,
+      UserModule
   ],
   controllers: [RoleController],
   providers: [RoleService],

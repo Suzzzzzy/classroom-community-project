@@ -1,5 +1,4 @@
-import {Injectable} from '@nestjs/common';
-import {UpdateRoleDto} from './dto/update-role.dto';
+import {BadRequestException, ForbiddenException, Injectable} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Role} from "./entities/role.entity";
@@ -7,6 +6,9 @@ import {RoleAccessType} from "./type/role-access-type";
 import {Space} from "../space/entities/space.entity";
 import {User} from "../user/entity/user.entity";
 import {RoleAssignment} from "./entities/role-assignment";
+import {SpaceService} from "../space/space.service";
+import {UpdateRoleAssignmentDto} from "./dto/update-role-assignment.dto";
+import {UserService} from "../user/user.service";
 
 @Injectable()
 export class RoleService {
@@ -15,6 +17,8 @@ export class RoleService {
       private roleRepository: Repository<Role>,
       @InjectRepository(RoleAssignment)
       private roleAssignmentRepository: Repository<RoleAssignment>,
+      private spaceService: SpaceService,
+      private userService: UserService,
   ) {}
   async create(space: Space, accessType: RoleAccessType, name: string) {
     return await this.roleRepository.save({
@@ -44,12 +48,34 @@ export class RoleService {
         .getOne();
   }
 
+  async updateRoleAssignment(user: User, spaceId: number, targetUserId: number, updateRoleAssignmentDto: UpdateRoleAssignmentDto): Promise<void>{
+    await this.spaceService.findOne(spaceId);
+    // 소유자 권한 확인
+    const userRole = await this.findRoleAssignment(spaceId, user.id);
+    if (!userRole || userRole.isOwner == 0) {
+      throw new ForbiddenException('역할 변경 권한이 없습니다.')
+    }
+    // 타겟 유저 확인
+    await this.userService.findByUserId(targetUserId)
+    // 역할 변경
+    const role = await this.findRoleAssignment(spaceId, targetUserId)
+    if (!role) {
+      throw new ForbiddenException('공간에 참여 중인 사용자가 아닙니다.')
+    }
+    const newRole = await this.findBySpaceAndName(spaceId, updateRoleAssignmentDto.role);
 
-  update(id: number, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} role`;
+    role.role = newRole;
+    if (updateRoleAssignmentDto.role == "소유자") {
+      if (newRole.accessType != RoleAccessType.ADMIN) {
+        throw new BadRequestException('소유자는 관리자와 같은 역할을 공유합니다.')
+      }
+      role.isOwner = 1;
+    } else {
+      if (newRole.accessType != updateRoleAssignmentDto.accessType) {
+        throw new BadRequestException('권한과 역할이 올바르지 않습니다.')
+      }
+      role.isOwner = 0;
+    }
+    await this.roleAssignmentRepository.save(role);
   }
 }

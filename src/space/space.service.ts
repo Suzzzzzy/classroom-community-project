@@ -94,7 +94,7 @@ export class SpaceService {
     // 소유자 권한 확인
     const userRole = await this.roleService.findRoleAssignment(spaceId, user.id);
     if (!userRole || userRole.isOwner == 0) {
-      throw new ForbiddenException('삭제 권한이 없습니다.')
+      throw new ForbiddenException('공간 삭제 권한이 없습니다.')
     }
     // 공간 입장 코드 삭제
     await this.accessCodeRepository.softRemove({space: {id: spaceId}})
@@ -127,7 +127,7 @@ export class SpaceService {
     return space
   }
 
-  async joinSpace(user: User, spaceId: number, joinSpaceDto: JoinSpaceDto){
+  async joinSpace(user: User, spaceId: number, joinSpaceDto: JoinSpaceDto): Promise<void>{
     await this.findOne(spaceId);
     const isJoined = await this.roleService.findRoleAssignment(spaceId, user.id);
     if (isJoined) {
@@ -138,12 +138,9 @@ export class SpaceService {
     if (accessAuthorization.accessType != role.accessType) {
       throw new ForbiddenException('역할 권한이 없습니다.')
     }
-    return this.roleAssignmentRepository.save({user: user, role: role})
+    await this.roleAssignmentRepository.save({user: user, role: role})
   }
 
-  async findAccessCode(spaceId: number): Promise<AccessCode[]>{
-    return await this.accessCodeRepository.find({where: {space: {id: spaceId}}})
-  }
 
 
   findAll() {

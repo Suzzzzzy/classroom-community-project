@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
   UseInterceptors,
-  ClassSerializerInterceptor, UseGuards
+  ClassSerializerInterceptor, UseGuards, Put
 } from '@nestjs/common';
 import { SpaceService } from './space.service';
 import { CreateSpaceDto } from './dto/create-space.dto';
@@ -38,19 +38,15 @@ export class SpaceController {
     return this.spaceService.deleteSpace(user, spaceId);
   }
 
-  @Post('/:id/participants')
-  async JoinSpace(@Req() req: any, @Param('id') id: string, @Body() joinSpaceDto: JoinSpaceDto) {
+  @Post('/:spaceId/users')
+  async JoinSpace(@Req() req: any, @Param('spaceId') spaceId: string, @Body() joinSpaceDto: JoinSpaceDto) {
     const user = req.user
-    const spaceId = parseInt(id, 10)
     const {accessCode, myRole} = joinSpaceDto
-    await this.spaceService.joinSpace(user, spaceId, joinSpaceDto)
-    return '참여 완료'
+    await this.spaceService.joinSpace(user, +spaceId, joinSpaceDto)
+    return '참여 완'
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.spaceService.findOne(+id);
-  }
+
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSpaceDto: UpdateSpaceDto) {

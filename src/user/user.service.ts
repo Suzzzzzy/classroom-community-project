@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable, NotFoundException} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {InjectRepository} from "@nestjs/typeorm";
@@ -26,7 +26,7 @@ export class UserService {
   async findByUserId(userId: number): Promise<User> {
     const user = await this.userRepository.findOne({where: {id: userId}});
     if (!user) {
-      throw new Error('사용자를 찾을 수 없습니다.')
+      throw new NotFoundException('사용자를 찾을 수 없습니다.')
     }
     return user
   }

@@ -11,7 +11,6 @@ import {AccessCode} from "./entities/accesscode.entity";
 @Module({
   imports: [
       TypeOrmModule.forFeature([Space, Role, RoleAssignment, AccessCode]),
-      RoleModule
   ],
   controllers: [SpaceController],
   providers: [SpaceService],

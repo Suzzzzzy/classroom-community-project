@@ -1,22 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Put, Req} from '@nestjs/common';
 import { RoleService } from './role.service';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
+import {UpdateRoleAssignmentDto} from "./dto/update-role-assignment.dto";
 
-@Controller('role')
+@Controller('roles')
 export class RoleController {
-  constructor(private readonly roleService: RoleService) {}
+  constructor(
+      private readonly roleService: RoleService,
+  ) {}
 
 
-
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.roleService.update(+id, updateRoleDto);
+  @Put('/spaces/:spaceId/users/roles/:targetUserId')
+  async updateRoleAssignment(
+      @Req() req: any,
+      @Param('spaceId') spaceId: string,
+      @Param('targetUserId') targetUserId: string,
+      @Body() updateRoleAssignmentDto: UpdateRoleAssignmentDto) {
+    const user = req.user
+    const {role, accessType} = updateRoleAssignmentDto
+    await this.roleService.updateRoleAssignment(user, +spaceId, +targetUserId, updateRoleAssignmentDto);
+    return '변경 완료'
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.roleService.remove(+id);
-  }
+
 }
