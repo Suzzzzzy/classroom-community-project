@@ -14,6 +14,7 @@ import { CreateSpaceDto } from './dto/create-space.dto';
 import { UpdateSpaceDto } from './dto/update-space.dto';
 import any = jasmine.any;
 import {AuthGuard} from "../user/auth.guard";
+import {mapToSpaceResponseDto} from "../role/dto/space.mapper";
 
 @Controller('space')
 @UseGuards(AuthGuard)
@@ -22,10 +23,11 @@ export class SpaceController {
   constructor(private readonly spaceService: SpaceService) {}
 
   @Post()
-  create(@Req() req:any, @Body() createSpaceDto: CreateSpaceDto) {
+  async create(@Req() req:any, @Body() createSpaceDto: CreateSpaceDto) {
     const {name, logoImageUrl} = createSpaceDto
     const user = req.user
-    return this.spaceService.create(user, createSpaceDto);
+    const result = await this.spaceService.create(user, createSpaceDto);
+    return mapToSpaceResponseDto(result)
   }
 
   @Get()
