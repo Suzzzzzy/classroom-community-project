@@ -1,4 +1,5 @@
 import {
+    BaseEntity,
     BeforeInsert,
     Column,
     CreateDateColumn,
@@ -12,7 +13,7 @@ import {Exclude} from "class-transformer";
 
 
 @Entity({name: 'users'})
-export class User {
+export class User extends BaseEntity{
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -33,14 +34,14 @@ export class User {
     @Column()
     profileImageUrl: String;
 
-    @CreateDateColumn()
+    @CreateDateColumn({ name: 'create_at', comment: '생성일자' })
     createdAt: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ name: 'updated_at', comment: '수정일자' })
     updatedAt: Date;
 
-    @DeleteDateColumn()
-    deletedAt: Date;
+    @DeleteDateColumn({ name: 'deleted_at', comment: '삭제일자' })
+    deletedAt?: Date | null;
 
 
     @BeforeInsert()
