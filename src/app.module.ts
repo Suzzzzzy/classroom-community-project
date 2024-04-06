@@ -3,11 +3,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {TypeOrmModule} from "@nestjs/typeorm";
 import { UserModule } from './user/user.module';
-import {UserEntity} from "./user/entity/user.entity";
+import {User} from "./user/entity/user.entity";
 import { SpaceModule } from './space/space.module';
 import {RoleModule} from "./role/role.module";
 import {Space} from "./space/entities/space.entity";
 import {Role} from "./role/entities/role.entity";
+import {RoleAssignment} from "./role/entities/role-assignment";
 
 
 @Module({
@@ -19,7 +20,7 @@ import {Role} from "./role/entities/role.entity";
         username: 'root',
         password: 'root',
         database: 'classum',
-        entities: [UserEntity, Space, Role],
+        entities: [User, Space, Role, RoleAssignment],
         synchronize: true,
       }),
       UserModule,

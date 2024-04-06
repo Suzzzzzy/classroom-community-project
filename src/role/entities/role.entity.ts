@@ -4,12 +4,12 @@ import {
     DeleteDateColumn,
     Entity,
     JoinColumn,
-    ManyToOne,
+    ManyToOne, OneToMany,
     PrimaryGeneratedColumn
 } from "typeorm";
 import {Space} from "../../space/entities/space.entity";
 import {RoleAccessType} from "../type/role-access-type";
-import {spec} from "node:test/reporters";
+import {RoleAssignment} from "./role-assignment";
 
 @Entity({name: 'role'})
 export class Role {
@@ -37,4 +37,7 @@ export class Role {
     })
     @JoinColumn([{name: 'space_id', referencedColumnName: 'id'}])
     space: Space;
+
+    @OneToMany(() => RoleAssignment, (roleAssignment) => roleAssignment.role)
+    roleAssignments: RoleAssignment[];
 }

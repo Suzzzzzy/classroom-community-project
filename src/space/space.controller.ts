@@ -25,7 +25,7 @@ export class SpaceController {
   create(@Req() req:any, @Body() createSpaceDto: CreateSpaceDto) {
     const {name, logoImageUrl} = createSpaceDto
     const user = req.user
-    return this.spaceService.create(user.id, createSpaceDto);
+    return this.spaceService.create(user, createSpaceDto);
   }
 
   @Get()
