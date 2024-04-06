@@ -34,13 +34,13 @@ export class User extends BaseEntity{
     @Column()
     profileImageUrl: string;
 
-    @CreateDateColumn({ name: 'create_at', comment: '생성일자' })
+    @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn({ name: 'updated_at', comment: '수정일자' })
+    @UpdateDateColumn()
     updatedAt: Date;
 
-    @DeleteDateColumn({ name: 'deleted_at', comment: '삭제일자' })
+    @DeleteDateColumn()
     deletedAt?: Date | null;
 
 

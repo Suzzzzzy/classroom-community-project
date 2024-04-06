@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 
 @Entity({name: 'space'})
-export class Space extends BaseEntity{
+export class Space {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -36,29 +36,5 @@ export class Space extends BaseEntity{
     updatedAt: Date;
 
     @DeleteDateColumn()
-    deletedAt: Date;
-
-
-
-    @BeforeInsert()
-    @BeforeUpdate()
-    generateAccessCodes() {
-        if (!this.adminAccessCode) {
-            this.adminAccessCode = this.generateRandomCode();
-        }
-        if (!this.memberAccessCode) {
-            this.memberAccessCode = this.generateRandomCode();
-        }
-    }
-
-    private generateRandomCode(): string {
-        const length = 8;
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let result = '';
-        for (let i = 0; i < length; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return result;
-    }
-
+    deletedAt?: Date | null;
 }

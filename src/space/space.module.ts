@@ -9,6 +9,7 @@ import {RoleModule} from "../role/role.module";
 @Module({
   imports: [
       TypeOrmModule.forFeature([Space, Role]),
+      RoleModule
   ],
   controllers: [SpaceController],
   providers: [SpaceService],

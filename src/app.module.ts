@@ -5,6 +5,9 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import { UserModule } from './user/user.module';
 import {User} from "./user/entity/user";
 import { SpaceModule } from './space/space.module';
+import {RoleModule} from "./role/role.module";
+import {Space} from "./space/entities/space.entity";
+import {Role} from "./role/entities/role.entity";
 
 
 @Module({
@@ -16,11 +19,12 @@ import { SpaceModule } from './space/space.module';
         username: 'root',
         password: 'root',
         database: 'classum',
-        entities: [User],
+        entities: [User, Space, Role],
         synchronize: true,
       }),
       UserModule,
       SpaceModule,
+      RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
