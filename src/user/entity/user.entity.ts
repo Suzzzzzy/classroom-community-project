@@ -1,37 +1,39 @@
 import {
+    BaseEntity,
     BeforeInsert,
     Column,
     CreateDateColumn,
     DeleteDateColumn,
-    Entity,
+    Entity, OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
 import * as bcrypt from 'bcrypt';
 import {Exclude} from "class-transformer";
+import {RoleAssignment} from "../../role/entities/role-assignment";
 
 
 @Entity({name: 'users'})
-export class User {
+export class User extends BaseEntity{
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column({ unique: true })
     @Column()
-    email: String;
+    email: string;
 
     @Column()
     @Exclude()
-    password: String;
+    password: string;
 
     @Column()
-    firstName: String;
+    firstName: string;
 
     @Column()
-    lastName: String;
+    lastName: string;
 
     @Column()
-    profileImageUrl: String;
+    profileImageUrl: string;
 
     @CreateDateColumn()
     createdAt: Date;
@@ -40,7 +42,10 @@ export class User {
     updatedAt: Date;
 
     @DeleteDateColumn()
-    deletedAt: Date;
+    deletedAt?: Date | null;
+
+    @OneToMany(() => RoleAssignment, (roleAssignment) => roleAssignment.user)
+    roleAssignments: RoleAssignment[];
 
 
     @BeforeInsert()

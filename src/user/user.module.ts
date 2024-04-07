@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {User} from "./entity/user";
+import {User} from "./entity/user.entity";
 import {JwtModule, JwtService} from "@nestjs/jwt";
 import {JwtStrategy} from "./auth.jwt.strategy";
 import {PassportModule} from "@nestjs/passport";
@@ -13,7 +13,7 @@ import {PassportModule} from "@nestjs/passport";
         JwtModule.register({
             global: true,
             secret: "secret-key",
-            signOptions: {expiresIn: '300s'},
+            signOptions: {expiresIn: '1000000s'},
         }),
         PassportModule,
     ],
