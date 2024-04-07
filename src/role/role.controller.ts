@@ -1,8 +1,20 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Put, Req} from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Param,
+  Put,
+  Req,
+  UseGuards,
+  UseInterceptors,
+  ClassSerializerInterceptor
+} from '@nestjs/common';
 import { RoleService } from './role.service';
 import {UpdateRoleAssignmentDto} from "./dto/update-role-assignment.dto";
+import {AuthGuard} from "../user/auth.guard";
 
 @Controller('roles')
+@UseGuards(AuthGuard)
+@UseInterceptors(ClassSerializerInterceptor)
 export class RoleController {
   constructor(
       private readonly roleService: RoleService,

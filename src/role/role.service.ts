@@ -1,4 +1,4 @@
-import {BadRequestException, ForbiddenException, Injectable} from '@nestjs/common';
+import {BadRequestException, ForbiddenException, forwardRef, Inject, Injectable} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Role} from "./entities/role.entity";
@@ -9,6 +9,8 @@ import {RoleAssignment} from "./entities/role-assignment";
 import {SpaceService} from "../space/space.service";
 import {UpdateRoleAssignmentDto} from "./dto/update-role-assignment.dto";
 import {UserService} from "../user/user.service";
+import {RoleModule} from "./role.module";
+import {SpaceModule} from "../space/space.module";
 
 @Injectable()
 export class RoleService {
@@ -17,6 +19,7 @@ export class RoleService {
       private roleRepository: Repository<Role>,
       @InjectRepository(RoleAssignment)
       private roleAssignmentRepository: Repository<RoleAssignment>,
+      @Inject(forwardRef(() =>SpaceService))
       private spaceService: SpaceService,
       private userService: UserService,
   ) {}
@@ -63,9 +66,12 @@ export class RoleService {
       throw new ForbiddenException('공간에 참여 중인 사용자가 아닙니다.')
     }
     const newRole = await this.findBySpaceAndName(spaceId, updateRoleAssignmentDto.role);
+    if (!newRole) {
+      throw new BadRequestException('존재하지 않는 역할 입니다.')
+    }
 
     role.role = newRole;
-    if (updateRoleAssignmentDto.role == "소유자") {
+    if (updateRoleAssignmentDto.accessType == "소유자") {
       if (newRole.accessType != RoleAccessType.ADMIN) {
         throw new BadRequestException('소유자는 관리자와 같은 역할을 공유합니다.')
       }

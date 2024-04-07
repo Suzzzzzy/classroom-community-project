@@ -5,7 +5,7 @@ import {
     Entity,
     JoinColumn,
     ManyToOne, OneToMany,
-    PrimaryGeneratedColumn
+    PrimaryGeneratedColumn, UpdateDateColumn
 } from "typeorm";
 import {Space} from "../../space/entities/space.entity";
 import {RoleAccessType} from "../type/role-access-type";
@@ -27,6 +27,9 @@ export class Role {
 
     @CreateDateColumn()
     createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 
     @DeleteDateColumn()
     deletedAt?: Date | null;
