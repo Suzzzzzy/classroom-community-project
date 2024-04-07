@@ -24,7 +24,6 @@ export class SpaceController {
 
   @Post()
   async createSpace(@Req() req:any, @Body() createSpaceDto: CreateSpaceDto) {
-    const {name, logoImageUrl} = createSpaceDto
     const user = req.user
       const [space, adminAccessCode, memberAccessCode] = await this.spaceService.create(user, createSpaceDto);
       return mapToSpaceResponseDto(space, adminAccessCode, memberAccessCode);
@@ -40,7 +39,6 @@ export class SpaceController {
   @Post('/:spaceId/users')
   async JoinSpace(@Req() req: any, @Param('spaceId') spaceId: string, @Body() joinSpaceDto: JoinSpaceDto) {
     const user = req.user
-    const {accessCode, myRole} = joinSpaceDto
     await this.spaceService.joinSpace(user, +spaceId, joinSpaceDto)
     return '참여 완료'
   }

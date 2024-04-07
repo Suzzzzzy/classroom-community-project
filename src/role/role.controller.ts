@@ -21,14 +21,13 @@ export class RoleController {
   ) {}
 
 
-  @Put('/spaces/:spaceId/users/roles/:targetUserId')
+  @Put('/spaces/:spaceId/users/:targetUserId')
   async updateRoleAssignment(
       @Req() req: any,
       @Param('spaceId') spaceId: string,
       @Param('targetUserId') targetUserId: string,
       @Body() updateRoleAssignmentDto: UpdateRoleAssignmentDto) {
     const user = req.user
-    const {role, accessType} = updateRoleAssignmentDto
     await this.roleService.updateRoleAssignment(user, +spaceId, +targetUserId, updateRoleAssignmentDto);
     return '변경 완료'
   }

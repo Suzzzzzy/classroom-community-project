@@ -28,8 +28,7 @@ export class UserController {
 
   @Post('signup')
   async create(@Body() createUserDto: CreateUserDto) {
-    const {email, password, firstName, lastName, profileImageUrl} = createUserDto;
-    const hasEmail = await this.userService.findByEmail(email);
+    const hasEmail = await this.userService.findByEmail(createUserDto.email);
     if (hasEmail) {
       throw new ConflictException('이미 사용중인 이메일 입니다.');
     }
@@ -40,12 +39,11 @@ export class UserController {
 
   @Post('signin')
   async login(@Body() loginUserDto: LoginUserDto) {
-    const {email, password} = loginUserDto;
-    const user = await this.userService.findByEmail(email);
+    const user = await this.userService.findByEmail(loginUserDto.email);
     if (!user) {
       throw new UnauthorizedException('이메일 또는 비밀번호를 확인해주세요.');
     }
-    const checkedPassword = bcrypt.compareSync(password, user.password.toString());
+    const checkedPassword = bcrypt.compareSync(loginUserDto.password, user.password.toString());
     if (!checkedPassword) {
       throw new UnauthorizedException('이메일 또는 비밀번호를 확인해주세요.');
     }
@@ -62,7 +60,6 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Put('profile')
   async updateProfile(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
-    const {password, firstName, lastName, profileImageUrl} = updateUserDto;
     const user = req.user
     const result = await this.userService.updateUser(user, updateUserDto)
     return mapToDefaultUserDto(result)
