@@ -1,13 +1,12 @@
 import {
   Controller,
-  Get,
   Post, Req,
   Body,
   Patch,
   Param,
   Delete,
   UseInterceptors,
-  ClassSerializerInterceptor, UseGuards, Put
+  ClassSerializerInterceptor, UseGuards,
 } from '@nestjs/common';
 import { SpaceService } from './space.service';
 import { CreateSpaceDto } from './dto/create-space.dto';
@@ -43,7 +42,7 @@ export class SpaceController {
     const user = req.user
     const {accessCode, myRole} = joinSpaceDto
     await this.spaceService.joinSpace(user, +spaceId, joinSpaceDto)
-    return '참여 완'
+    return '참여 완료'
   }
 
 

@@ -3,14 +3,11 @@ import {
     CreateDateColumn,
     DeleteDateColumn,
     Entity, JoinColumn, ManyToOne,
-    OneToMany,
     PrimaryGeneratedColumn,
-    UpdateDateColumn
 } from "typeorm";
-import {Role} from "../../role/entities/role.entity";
 import {Space} from "./space.entity";
 
-@Entity({name: 'accessCode'})
+@Entity({name: 'access_code'})
 export class AccessCode {
     @PrimaryGeneratedColumn()
     id: number;

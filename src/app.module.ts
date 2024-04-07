@@ -21,7 +21,7 @@ import {AccessCode} from "./space/entities/accesscode.entity";
         username: 'root',
         password: 'root',
         database: 'classum',
-        // entities: [User, Space, Role, RoleAssignment, AccessCode],
+        entities: [User, Space, Role, RoleAssignment, AccessCode],
         synchronize: true,
         logging: true,
       }),

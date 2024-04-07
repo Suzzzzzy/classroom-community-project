@@ -1,7 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
+  ForbiddenException, forwardRef, Inject,
   Injectable,
   InternalServerErrorException
 } from '@nestjs/common';
@@ -24,6 +24,7 @@ export class SpaceService {
   constructor(
       @InjectRepository(Space)
       private spaceRepository: Repository<Space>,
+      @Inject(forwardRef(() =>RoleService))
       private roleService: RoleService,
       private readonly dataSource: DataSource,
       @InjectRepository(RoleAssignment)
@@ -134,6 +135,9 @@ export class SpaceService {
       throw new ConflictException('이미 공간에 참여중입니다.')
     }
     const accessAuthorization = await this.accessCodeRepository.findOne({where: {accessCode: joinSpaceDto.accessCode}})
+    if (!accessAuthorization) {
+      throw new BadRequestException('입장코드가 올바르지 않습니다.')
+    }
     const role = await this.roleService.findBySpaceAndName(spaceId, joinSpaceDto.myRole)
     if (accessAuthorization.accessType != role.accessType) {
       throw new ForbiddenException('역할 권한이 없습니다.')
