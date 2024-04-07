@@ -43,9 +43,9 @@ export class RoleService {
     return this.roleRepository.findOne({where: {name, space: {id: spaceId}}});
   }
 
-  async findRoleAssignment(spaceId: number, userId: number): Promise<RoleAssignment | undefined> {
+  async findRoleAssignment(spaceId: number, userId: number): Promise<RoleAssignment> {
     return await this.roleAssignmentRepository.createQueryBuilder('roleAssignment')
-        .innerJoin('roleAssignment.role', 'role')
+        .innerJoinAndSelect('roleAssignment.role', 'role')
         .where('role.space_id = :spaceId', {spaceId})
         .andWhere('roleAssignment.user_id = :userId', {userId})
         .getOne();
@@ -83,5 +83,27 @@ export class RoleService {
       role.isOwner = 0;
     }
     await this.roleAssignmentRepository.save(role);
+  }
+
+  async deleteRole(user: User, roleId: number, spaceId: number): Promise<void> {
+    // 관리자 권한 확인
+    const userRole = await this.findRoleAssignment(spaceId, user.id);
+    if (!userRole) {
+      throw new ForbiddenException('공간에 참여 중인 사용자가 아닙니다.')
+    }
+    if (userRole.role.accessType != RoleAccessType.ADMIN) {
+      throw new ForbiddenException('역할 삭제 권한이 없습니다.');
+    }
+    // 역할 정보 확인
+    const role = await this.roleRepository.findOne({where: {id: roleId}, relations: ['space']})
+    if (!role || role.space.id != spaceId) {
+      throw new BadRequestException('공간과 역할 정보가 올바르지 않습니다.')
+    }
+    // 역할 할당되어 있는 유저 확인
+    const isRoleAssignment = await this.roleAssignmentRepository.findOne({where: {role: {id: roleId}}})
+    if (isRoleAssignment) {
+      throw new ForbiddenException('사용중인 역할은 삭제할 수 없습니다.')
+    }
+    await this.roleRepository.softDelete(roleId);
   }
 }
