@@ -16,12 +16,18 @@ export class Post {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => User, user => user.roleAssignments)
-    @JoinColumn({name: "user_id", referencedColumnName: 'id'})
+    @Column({nullable: true})
+    userId: number;
+
+    @ManyToOne(() => User, user => user.posts)
+    @JoinColumn({name: "userId", referencedColumnName: 'id'})
     user: User;
 
-    @ManyToOne(() => Space, space => space.roles)
-    @JoinColumn([{name: 'space_id', referencedColumnName: 'id'}])
+    @Column({nullable: true})
+    spaceId: number;
+
+    @ManyToOne(() => Space, space => space.posts)
+    @JoinColumn([{name: 'spaceId', referencedColumnName: 'id'}])
     space: Space;
 
     @Column({type: "enum", enum: PostType})

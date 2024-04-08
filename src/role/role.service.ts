@@ -9,8 +9,6 @@ import {RoleAssignment} from "./entities/role-assignment";
 import {SpaceService} from "../space/space.service";
 import {UpdateRoleAssignmentDto} from "./dto/update-role-assignment.dto";
 import {UserService} from "../user/user.service";
-import {RoleModule} from "./role.module";
-import {SpaceModule} from "../space/space.module";
 
 @Injectable()
 export class RoleService {
@@ -40,14 +38,18 @@ export class RoleService {
   }
 
   async findBySpaceAndName(spaceId: number, name: string): Promise<Role> {
-    return this.roleRepository.findOne({where: {name, space: {id: spaceId}}});
+    const newRole= await this.roleRepository.findOne({where: {name, space: {id: spaceId}}});
+    if (!newRole) {
+      throw new BadRequestException('존재하지 않는 역할 입니다.');
+    }
+    return newRole
   }
 
   async findRoleAssignment(spaceId: number, userId: number): Promise<RoleAssignment> {
     return await this.roleAssignmentRepository.createQueryBuilder('roleAssignment')
         .innerJoinAndSelect('roleAssignment.role', 'role')
-        .where('role.space_id = :spaceId', {spaceId})
-        .andWhere('roleAssignment.user_id = :userId', {userId})
+        .where('role.spaceId = :spaceId', {spaceId})
+        .andWhere('roleAssignment.userId = :userId', {userId})
         .getOne();
   }
 
@@ -95,8 +97,8 @@ export class RoleService {
       throw new ForbiddenException('역할 삭제 권한이 없습니다.');
     }
     // 역할 정보 확인
-    const role = await this.roleRepository.findOne({where: {id: roleId}, relations: ['space']})
-    if (!role || role.space.id != spaceId) {
+    const role = await this.roleRepository.findOne({where: {id: roleId}})
+    if (!role || role.spaceId != spaceId) {
       throw new BadRequestException('공간과 역할 정보가 올바르지 않습니다.')
     }
     // 역할 할당되어 있는 유저 확인

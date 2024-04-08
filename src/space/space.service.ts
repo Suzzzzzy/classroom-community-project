@@ -3,10 +3,9 @@ import {
   ConflictException,
   ForbiddenException, forwardRef, Inject,
   Injectable,
-  InternalServerErrorException
+  InternalServerErrorException, NotFoundException
 } from '@nestjs/common';
 import {CreateSpaceDto} from './dto/create-space.dto';
-import {UpdateSpaceDto} from './dto/update-space.dto';
 import {InjectRepository} from "@nestjs/typeorm";
 import {Space} from "./entities/space.entity";
 import {DataSource, Repository} from "typeorm";
@@ -73,7 +72,7 @@ export class SpaceService {
 
       // 공간 생성자(소유자) 역할 할당
       const userRole = await this.roleService.findBySpaceAndName(newSpace.id, createSpaceDto.myRole)
-      if (!userRole || userRole.accessType != RoleAccessType.ADMIN) {
+      if (userRole.accessType != RoleAccessType.ADMIN) {
         throw new Error('나의 역할이 올바르지 않습니다.');
       }
       await this.roleService.assign(userRole, user, 1);
@@ -92,6 +91,11 @@ export class SpaceService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
+    // 공간 조회
+    const space = await this.findOne(spaceId)
+    if (!space) {
+      throw new NotFoundException('존재하지 않는 공간 입니다.')
+    }
     // 소유자 권한 확인
     const userRole = await this.roleService.findRoleAssignment(spaceId, user.id);
     if (!userRole || userRole.isOwner == 0) {
@@ -143,18 +147,6 @@ export class SpaceService {
       throw new ForbiddenException('역할 권한이 없습니다.')
     }
     await this.roleAssignmentRepository.save({user: user, role: role})
-  }
-
-
-
-  findAll() {
-    return `This action returns all space`;
-  }
-
-
-
-  update(id: number, updateSpaceDto: UpdateSpaceDto) {
-    return `This action updates a #${id} space`;
   }
 
 }

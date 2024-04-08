@@ -9,6 +9,7 @@ import {
     UpdateDateColumn
 } from "typeorm";
 import {Role} from "../../role/entities/role.entity";
+import {Post} from "../../post/entities/post.entity";
 
 @Entity({name: 'space'})
 export class Space {
@@ -35,4 +36,7 @@ export class Space {
 
     @OneToMany(() => Role, (role) => role.space)
     roles: Role[];
+
+    @OneToMany(() => Post, (post) => post.space)
+    posts: Post[];
 }

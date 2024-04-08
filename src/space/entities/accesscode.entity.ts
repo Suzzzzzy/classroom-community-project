@@ -19,7 +19,7 @@ export class AccessCode {
     accessCode: string;
 
     @ManyToOne(() => Space, space => space.roles)
-    @JoinColumn([{name: 'space_id', referencedColumnName: 'id'}])
+    @JoinColumn([{name: 'spaceId', referencedColumnName: 'id'}])
     space: Space;
 
     @CreateDateColumn()

@@ -11,6 +11,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import {Exclude} from "class-transformer";
 import {RoleAssignment} from "../../role/entities/role-assignment";
+import {Post} from "../../post/entities/post.entity";
 
 
 @Entity({name: 'users'})
@@ -47,6 +48,8 @@ export class User extends BaseEntity{
     @OneToMany(() => RoleAssignment, (roleAssignment) => roleAssignment.user)
     roleAssignments: RoleAssignment[];
 
+    @OneToMany(() => Post, (post) => post.user)
+    posts: Post[];
 
     @BeforeInsert()
     async hashPassword() {

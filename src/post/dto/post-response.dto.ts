@@ -5,5 +5,4 @@ export class PostResponseDto {
     title: string;
     content: string;
     isAnonymous: boolean;
-    tags: string[];
 }

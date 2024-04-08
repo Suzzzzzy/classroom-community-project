@@ -3,7 +3,6 @@ import {
     forwardRef,
     Inject,
     Injectable,
-    InternalServerErrorException,
     NotFoundException
 } from '@nestjs/common';
 import {CreatePostDto} from './dto/create-post.dto';
@@ -54,15 +53,9 @@ export class PostService {
   }
 
     async findOne(user: User, postId: number): Promise<Post> {
-        const post = await this.postRepository.findOne({
-            where: {id: postId},
-            relations: ['space', 'user']
-        });
-        if (!post) {
-            throw new NotFoundException()
-        }
+        const post = await this.getOne(postId)
         // 권한 확인
-        const userRole = await this.roleService.findRoleAssignment(post.space.id, user.id);
+        const userRole = await this.roleService.findRoleAssignment(post.spaceId, user.id);
         if (!userRole) {
             throw new ForbiddenException('공간에 참여 중인 사용자가 아닙니다.')
         }
@@ -73,19 +66,25 @@ export class PostService {
         }
     }
 
-    // async findOne(user: User, postId: number): Promise<[Post, RoleAccessType]> {
-    //     const post = await this.postRepository.findOne({
-    //         where: {id: postId},
-    //         //relations: ['space']
-    //     });
-    //     // 권한 확인
-    //     const userRole = await this.roleService.findRoleAssignment(post.space.id, user.id);
-    //     if (!userRole) {
-    //         throw new ForbiddenException('공간에 참여 중인 사용자가 아닙니다.')
-    //     }
-    //     return [post, userRole.role.accessType]
-    //
-    //     return `This action returns all post`;
-    // }
+    async getOne(postId: number): Promise<Post> {
+        const post = await this.postRepository.findOne({
+            where: {id: postId},
+        });
+        if (!post) {
+            throw new NotFoundException()
+        }
+        return post
+    }
+
+    async findAll(user: User, spaceId: number): Promise<[Post[], RoleAccessType]> {
+        // 권한 확인
+        const userRole = await this.roleService.findRoleAssignment(spaceId, user.id);
+        if (!userRole) {
+            throw new ForbiddenException('공간에 참여 중인 사용자가 아닙니다.')
+        }
+        // post 리스트 조회
+        const posts = await this.postRepository.find({where: {space: {id: spaceId}}});
+        return [posts, userRole.role.accessType]
+    }
 
 }

@@ -10,8 +10,6 @@ import {
 } from '@nestjs/common';
 import { SpaceService } from './space.service';
 import { CreateSpaceDto } from './dto/create-space.dto';
-import { UpdateSpaceDto } from './dto/update-space.dto';
-import any = jasmine.any;
 import {AuthGuard} from "../user/auth.guard";
 import {mapToSpaceResponseDto} from "./dto/space.mapper";
 import {JoinSpaceDto} from "./dto/join-space.dto";
@@ -33,7 +31,8 @@ export class SpaceController {
   async deleteSpace(@Req() req:any, @Param('id') id: string) {
     const user = req.user
     const spaceId = parseInt(id, 10);
-    return this.spaceService.deleteSpace(user, spaceId);
+    await this.spaceService.deleteSpace(user, spaceId);
+    return '삭제 완료'
   }
 
   @Post('/:spaceId/users')
@@ -42,13 +41,5 @@ export class SpaceController {
     await this.spaceService.joinSpace(user, +spaceId, joinSpaceDto)
     return '참여 완료'
   }
-
-
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSpaceDto: UpdateSpaceDto) {
-    return this.spaceService.update(+id, updateSpaceDto);
-  }
-
 
 }

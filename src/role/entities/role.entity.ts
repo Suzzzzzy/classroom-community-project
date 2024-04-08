@@ -25,16 +25,21 @@ export class Role {
     @Column()
     name: string;
 
+    @Column({nullable: true})
+    spaceId: number;
+
+    @ManyToOne(() => Space, space => space.roles)
+    @JoinColumn([{name: 'spaceId', referencedColumnName: 'id'}])
+    space: Space;
+
     @CreateDateColumn()
     createdAt: Date;
 
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @DeleteDateColumn()ㅜ
-    @ManyToOne(() => Space, space => space.roles)
-    @JoinColumn([{name: 'space_id', referencedColumnName: 'id'}])
-    space: Space;
+    @DeleteDateColumn()
+    deletedAt?: Date | null;
 
     @OneToMany(() => RoleAssignment, (roleAssignment) => roleAssignment.role, { cascade: true })
     roleAssignments: RoleAssignment[];
