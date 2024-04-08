@@ -37,7 +37,6 @@ import {LoggerMiddleware} from "./logger/logger.middleware";
         database: process.env.DATABASE_NAME,
         entities: [User, Space, Role, RoleAssignment, AccessCode, Post, Chat, Comment],
         synchronize: true,
-        logging: true,
       }),
       UserModule,
       SpaceModule,

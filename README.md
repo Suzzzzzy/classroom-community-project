@@ -1,30 +1,49 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# 프로젝트명
+> classum-assignment
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# 프로젝트 설명
+사용자가 공간을 개설하고, 공간에 참여하여 자유롭게 글과 댓글을 작성하는 서비스 입니다.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# 개발환경
+- [Nest](https://github.com/nestjs/nest).js 10.32
+- Node.js 18.20.1
+- TypeORM 0.3.20
+- TypeScript 5.1.3
+- docker-compose 3.8
 
-## Description
+# 데이터베이스
+- MySQL 8.0.22
+- 테이블 구조는 아래와 같습니다.
+![img.png](img.png)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 데이터베이스 실행 방법
+도커 설치가 필요합니다.
+[Docker](https://www.docker.com/get-started) 설치 & 로그인 (tested on v4.3.0)
+데이터베이스를 docker-compose 로 구성하고 환경에 따라 DB를 세팅합니다.
+- 개발 DB 세팅
+```bash
+docker-compose --env-file .dev.env up -d    
+```
+- 프로덕션 DB 세팅
+```bash
+docker-compose --env-file .prod.env up -d    
+```
+
+# 프로젝트 실행 방법
+DB를 먼저 실행 시킨 후에 프로젝트를 실행시킵니다.
+- 개발 환경에서 실행
+```bash
+npm run start:dev
+```
+- 프로덕션 환경에서 실행
+```bash
+npm run start:prod
+```
+http://localhost:8080/ 접속했을 때, "Hello World"가 출력된다면 데이터베이스와 서비스 실행이 성공적으로 실행된 것입니다.
+
+# API 명세서
+[postman api document](https://documenter.getpostman.com/view/19629582/2sA35MzzM5)
+
 
 ## Installation
 
@@ -57,17 +76,3 @@ $ docker-compose --env-file .dev.env up
 # 프로덕션 DB 실행
 $ docker-compose --env-file .prod.env up 
 ```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
