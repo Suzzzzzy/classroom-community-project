@@ -11,7 +11,7 @@ import {
 import { SpaceService } from './space.service';
 import { CreateSpaceDto } from './dto/create-space.dto';
 import {AuthGuard} from "../user/auth.guard";
-import {mapToSpaceResponseDto} from "./dto/space.mapper";
+import {mapToSpaceResponseDto} from "./dto/mapper/space.mapper";
 import {JoinSpaceDto} from "./dto/join-space.dto";
 
 @Controller('spaces')

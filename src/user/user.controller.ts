@@ -16,7 +16,7 @@ import {LoginUserDto} from "./dto/login-user.dto";
 import * as bcrypt from 'bcrypt';
 import {JwtService} from "@nestjs/jwt";
 import { AuthGuard } from './auth.guard';
-import {mapToDefaultUserDto, mapToPublicUserDto} from "./dto/user.mapper";
+import {mapToDefaultUserDto, mapToPublicUserDto} from "./dto/mapper/user.mapper";
 
 @Controller('users')
 @UseInterceptors(ClassSerializerInterceptor)
