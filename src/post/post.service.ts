@@ -22,6 +22,8 @@ export class PostService {
   ) {
   }
   async create(user: User, spaceId: number, createPostDto: CreatePostDto) {
+      // 공간 정보 확인
+      const space = await this.spaceService.findOne(spaceId)
       // 권한 확인
       const userRole = await this.roleService.findRoleAssignment(spaceId, user.id);
       if (!userRole) {
@@ -36,7 +38,7 @@ export class PostService {
       // post 작성
       return this.postRepository.save({
           user: user,
-          spaceId: spaceId,
+          space: space,
           postType: createPostDto.postType,
           title: createPostDto.title,
           content: createPostDto.content,

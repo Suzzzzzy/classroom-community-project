@@ -1,5 +1,5 @@
-import {Space} from "../../space/entities/space.entity";
-import {SpaceResponseDto} from "../../space/dto/space-response.dto";
+import {Space} from "../entities/space.entity";
+import {SpaceResponseDto} from "./space-response.dto";
 
 export function mapToSpaceResponseDto(space: Space, adminAccessCode: string, memberAccessCode: string): SpaceResponseDto {
     return {

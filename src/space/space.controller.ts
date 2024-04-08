@@ -13,7 +13,7 @@ import { CreateSpaceDto } from './dto/create-space.dto';
 import { UpdateSpaceDto } from './dto/update-space.dto';
 import any = jasmine.any;
 import {AuthGuard} from "../user/auth.guard";
-import {mapToSpaceResponseDto} from "../role/dto/space.mapper";
+import {mapToSpaceResponseDto} from "./dto/space.mapper";
 import {JoinSpaceDto} from "./dto/join-space.dto";
 
 @Controller('spaces')

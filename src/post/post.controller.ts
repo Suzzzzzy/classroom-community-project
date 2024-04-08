@@ -15,6 +15,7 @@ import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import {AuthGuard} from "../user/auth.guard";
+import {mapToPostResponseDto} from "./dto/post.mapper";
 
 @Controller('posts')
 @UseGuards(AuthGuard)
@@ -25,7 +26,8 @@ export class PostController {
   @Post('spaces/:spaceId')
   async create(@Req() req: any, @Param('spaceId') spaceId: string, @Body() createPostDto: CreatePostDto) {
     const user = req.user
-    return await this.postService.create(user, +spaceId, createPostDto);
+    const newPost = await this.postService.create(user, +spaceId, createPostDto);
+    return mapToPostResponseDto(newPost, null)
   }
 
   @Get()
