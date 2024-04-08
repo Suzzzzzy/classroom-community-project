@@ -1,4 +1,11 @@
-import {BadRequestException, ForbiddenException, forwardRef, Inject, Injectable} from '@nestjs/common';
+import {
+    ForbiddenException,
+    forwardRef,
+    Inject,
+    Injectable,
+    InternalServerErrorException,
+    NotFoundException
+} from '@nestjs/common';
 import {CreatePostDto} from './dto/create-post.dto';
 import {InjectRepository} from "@nestjs/typeorm";
 import {DataSource, Repository} from "typeorm";
@@ -21,7 +28,7 @@ export class PostService {
       private readonly dataSource: DataSource,
   ) {
   }
-  async create(user: User, spaceId: number, createPostDto: CreatePostDto) {
+  async create(user: User, spaceId: number, createPostDto: CreatePostDto): Promise<Post> {
       // 공간 정보 확인
       const space = await this.spaceService.findOne(spaceId)
       // 권한 확인
@@ -46,8 +53,39 @@ export class PostService {
       });
   }
 
-  findAll() {
-    return `This action returns all post`;
-  }
+    async findOne(user: User, postId: number): Promise<Post> {
+        const post = await this.postRepository.findOne({
+            where: {id: postId},
+            relations: ['space', 'user']
+        });
+        if (!post) {
+            throw new NotFoundException()
+        }
+        // 권한 확인
+        const userRole = await this.roleService.findRoleAssignment(post.space.id, user.id);
+        if (!userRole) {
+            throw new ForbiddenException('공간에 참여 중인 사용자가 아닙니다.')
+        }
+        if (post.isAnonymous == true && userRole.role.accessType == RoleAccessType.MEMBER) {
+            throw new NotFoundException()
+        } else {
+            return post
+        }
+    }
+
+    // async findOne(user: User, postId: number): Promise<[Post, RoleAccessType]> {
+    //     const post = await this.postRepository.findOne({
+    //         where: {id: postId},
+    //         //relations: ['space']
+    //     });
+    //     // 권한 확인
+    //     const userRole = await this.roleService.findRoleAssignment(post.space.id, user.id);
+    //     if (!userRole) {
+    //         throw new ForbiddenException('공간에 참여 중인 사용자가 아닙니다.')
+    //     }
+    //     return [post, userRole.role.accessType]
+    //
+    //     return `This action returns all post`;
+    // }
 
 }
