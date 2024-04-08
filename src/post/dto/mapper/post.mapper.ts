@@ -5,8 +5,9 @@ import {RoleAccessType} from "../../../role/type/role-access-type";
 import {Chat} from "../../entities/chat.entity";
 import {ChatResponseDto} from "../chat-response.dto";
 import {CommentResponseDto} from "../comment-response.dto";
+import {PostDefaultDto} from "../post-default.dto";
 
-export function mapToCreatePostResponseDto(post: Post): PostResponseDto {
+export function mapToDefaultPostResponseDto(post: Post): PostDefaultDto {
     return {
         id : post.id,
         spaceId : post.spaceId,
@@ -16,7 +17,6 @@ export function mapToCreatePostResponseDto(post: Post): PostResponseDto {
         isAnonymous : post.isAnonymous,
         createdAt : post.createdAt,
         updatedAt : post.updatedAt,
-        chats: null,
     }
 }
 

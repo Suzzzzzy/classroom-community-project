@@ -12,15 +12,16 @@ import {
 import {PostService} from './post.service';
 import {CreatePostDto} from './dto/create-post.dto';
 import {AuthGuard} from "../user/auth.guard";
-import {mapToCreatePostResponseDto, mapToPostResponseDto, mapToPostsResponseDto} from "./dto/mapper/post.mapper";
+import {mapToDefaultPostResponseDto, mapToPostResponseDto, mapToPostsResponseDto} from "./dto/mapper/post.mapper";
 import {PostResponseDto} from "./dto/post-response.dto";
 import {CreateChatDto} from "./dto/create-chat.dto";
-import {Chat} from "./entities/chat.entity";
 import {mapToChatResponseDto} from "./dto/mapper/chat-mapper.dto";
 import {ChatResponseDto} from "./dto/chat-response.dto";
 import {mapToCommentResponseDto} from "./dto/mapper/comment-mapper.dto";
 import {CommentResponseDto} from "./dto/comment-response.dto";
 import {PostsResponseDto} from "./dto/posts-response.dto";
+import {PostDefaultDto} from "./dto/post-default.dto";
+import {ChatDefaultDto} from "./dto/chat-default.dto";
 
 @Controller('posts')
 @UseGuards(AuthGuard)
@@ -29,11 +30,11 @@ export class PostController {
   constructor(private readonly postService: PostService) {
   }
 
-  @Post('spaces/:spaceId')
-  async createPost(@Req() req: any, @Param('spaceId') spaceId: string, @Body() createPostDto: CreatePostDto): Promise<PostResponseDto> {
+  @Post('/spaces/:spaceId')
+  async createPost(@Req() req: any, @Param('spaceId') spaceId: string, @Body() createPostDto: CreatePostDto): Promise<PostDefaultDto> {
     const user = req.user
     const newPost = await this.postService.createPost(user, +spaceId, createPostDto);
-    return mapToCreatePostResponseDto(newPost)
+    return mapToDefaultPostResponseDto(newPost)
   }
 
   @Get('/:postId')
@@ -51,7 +52,7 @@ export class PostController {
   }
 
   @Post('/:postId/chats')
-  async createChat(@Req() req: any, @Param('postId') postId: string, @Body() createChatDto: CreateChatDto): Promise<ChatResponseDto> {
+  async createChat(@Req() req: any, @Param('postId') postId: string, @Body() createChatDto: CreateChatDto): Promise<ChatDefaultDto> {
     const user = req.user
     const newChat = await this.postService.createChat(user, +postId, createChatDto)
     return mapToChatResponseDto(newChat)
@@ -78,5 +79,15 @@ export class PostController {
     const user = req.user
     await this.postService.deleteChat(user, +postId, +chatId)
     return '삭제 완료'
+  }
+
+  @Get('/users/user')
+  async findAllByUser(@Req() req: any): Promise<any> {
+    const user = req.user
+    const {myPosts, myChats, myComments} = await this.postService.findAllByUser(user)
+    const posts = myPosts.map(post => mapToDefaultPostResponseDto(post));
+    const chats = myChats.map(chat => mapToChatResponseDto(chat));
+    const comments = myComments.map(comment => mapToCommentResponseDto(comment));
+    return {posts, chats, comments};
   }
 }

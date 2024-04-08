@@ -163,4 +163,11 @@ export class PostService {
         }
     }
 
+    async findAllByUser(user: User) :Promise<{ myPosts: Post[], myChats: Chat[], myComments: Comment[] }>{
+        const posts = await this.postRepository.find({where: {userId: user.id}});
+        const chats = await this.chatRepository.find({where: {userId: user.id}});
+        const comments = await this.commentRepository.find({where: {userId: user.id}});
+        return {myPosts: posts, myChats: chats, myComments: comments}
+    }
+
 }
