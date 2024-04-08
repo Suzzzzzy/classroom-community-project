@@ -61,7 +61,7 @@ export class PostService {
       });
   }
 
-    async findPost(user: User, postId: number): Promise<Post> {
+    async findPost(user: User, postId: number): Promise<[Post, Chat[], RoleAccessType]> {
         const post = await this.getOnePost(postId)
         // 권한 확인
         const userRole = await this.roleService.findRoleAssignment(post.spaceId, user.id);
@@ -71,7 +71,11 @@ export class PostService {
         if (post.isAnonymous == true && userRole.role.accessType == RoleAccessType.MEMBER) {
             throw new NotFoundException()
         } else {
-            return post
+            const chatAndComments = await this.chatRepository.find({
+                where: {postId},
+                relations: ['comments']
+            })
+            return [post, chatAndComments, userRole.role.accessType]
         }
     }
 
@@ -102,7 +106,7 @@ export class PostService {
         // chat 작성
         return await this.chatRepository.save({
             user: user,
-            post: post,
+            postId: postId,
             content: createChatDto.content,
             isAnonymous: createChatDto.isAnonymous,
         })

@@ -10,5 +10,6 @@ export function mapToChatResponseDto(chat: Chat): ChatResponseDto {
         isAnonymous: chat.isAnonymous,
         createdAt: chat.createdAt,
         updatedAt: chat.updatedAt,
+        comments: null
     }
 }

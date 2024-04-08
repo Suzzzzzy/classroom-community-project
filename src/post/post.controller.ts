@@ -12,7 +12,7 @@ import {
 import {PostService} from './post.service';
 import {CreatePostDto} from './dto/create-post.dto';
 import {AuthGuard} from "../user/auth.guard";
-import {mapToPostResponseDto, mapToPostsResponseDto} from "./dto/mapper/post.mapper";
+import {mapToCreatePostResponseDto, mapToPostResponseDto, mapToPostsResponseDto} from "./dto/mapper/post.mapper";
 import {PostResponseDto} from "./dto/post-response.dto";
 import {CreateChatDto} from "./dto/create-chat.dto";
 import {Chat} from "./entities/chat.entity";
@@ -20,6 +20,7 @@ import {mapToChatResponseDto} from "./dto/mapper/chat-mapper.dto";
 import {ChatResponseDto} from "./dto/chat-response.dto";
 import {mapToCommentResponseDto} from "./dto/mapper/comment-mapper.dto";
 import {CommentResponseDto} from "./dto/comment-response.dto";
+import {PostsResponseDto} from "./dto/posts-response.dto";
 
 @Controller('posts')
 @UseGuards(AuthGuard)
@@ -32,18 +33,18 @@ export class PostController {
   async createPost(@Req() req: any, @Param('spaceId') spaceId: string, @Body() createPostDto: CreatePostDto): Promise<PostResponseDto> {
     const user = req.user
     const newPost = await this.postService.createPost(user, +spaceId, createPostDto);
-    return mapToPostResponseDto(newPost)
+    return mapToCreatePostResponseDto(newPost)
   }
 
   @Get('/:postId')
   async findPost(@Req() req: any, @Param('postId') postId: string): Promise<PostResponseDto> {
     const user = req.user
-    const post = await this.postService.findPost(user, +postId);
-    return mapToPostResponseDto(post)
+    const  [post, chats, accessType] = await this.postService.findPost(user, +postId);
+    return mapToPostResponseDto(post, accessType, chats)
   }
 
   @Get('/spaces/:spaceId')
-  async findAllPosts(@Req() req: any, @Param('spaceId') spaceId: string): Promise<PostResponseDto[]> {
+  async findAllPosts(@Req() req: any, @Param('spaceId') spaceId: string): Promise<PostsResponseDto[]> {
     const user = req.user
     const [posts, accessType] = await this.postService.findAllPosts(user, +spaceId)
     return mapToPostsResponseDto(posts, accessType)
