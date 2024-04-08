@@ -1,11 +1,9 @@
-export class PostsResponseDto {
+export class ChatResponseDto {
     id: number;
     userId: number;
-    spaceId: number;
-    title: string;
+    postId: number;
     content: string;
     isAnonymous: boolean;
     createdAt: Date;
     updatedAt: Date;
-    tags: string[];
 }

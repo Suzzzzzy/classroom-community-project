@@ -14,20 +14,29 @@ import {SpaceService} from "../space/space.service";
 import {User} from "../user/entity/user.entity";
 import {RoleAccessType} from "../role/type/role-access-type";
 import {PostType} from "./type/post-type";
+import {Chat} from "./entities/chat.entity";
+import {Comment} from "./entities/comment.entity";
+import {CreateChatDto} from "./dto/create-chat.dto";
+import {CreateCommentDto} from "./dto/create-comment.dto";
 
 @Injectable()
 export class PostService {
-  constructor(
-      @InjectRepository(Post)
-      private postRepository: Repository<Post>,
-      @Inject(forwardRef(() =>RoleService))
-      private roleService: RoleService,
-      @Inject(forwardRef(() =>SpaceService))
-      private spaceService: SpaceService,
-      private readonly dataSource: DataSource,
-  ) {
-  }
-  async create(user: User, spaceId: number, createPostDto: CreatePostDto): Promise<Post> {
+    constructor(
+        @InjectRepository(Post)
+        private postRepository: Repository<Post>,
+        @Inject(forwardRef(() => RoleService))
+        private roleService: RoleService,
+        @Inject(forwardRef(() => SpaceService))
+        private spaceService: SpaceService,
+        @InjectRepository(Chat)
+        private chatRepository: Repository<Chat>,
+        @InjectRepository(Comment)
+        private commentRepository: Repository<Comment>,
+        private readonly dataSource: DataSource,
+    ) {
+
+    }
+  async createPost(user: User, spaceId: number, createPostDto: CreatePostDto): Promise<Post> {
       // 공간 정보 확인
       const space = await this.spaceService.findOne(spaceId)
       // 권한 확인
@@ -52,8 +61,8 @@ export class PostService {
       });
   }
 
-    async findOne(user: User, postId: number): Promise<Post> {
-        const post = await this.getOne(postId)
+    async findPost(user: User, postId: number): Promise<Post> {
+        const post = await this.getOnePost(postId)
         // 권한 확인
         const userRole = await this.roleService.findRoleAssignment(post.spaceId, user.id);
         if (!userRole) {
@@ -66,7 +75,7 @@ export class PostService {
         }
     }
 
-    async getOne(postId: number): Promise<Post> {
+    async getOnePost(postId: number): Promise<Post> {
         const post = await this.postRepository.findOne({
             where: {id: postId},
         });
@@ -76,7 +85,7 @@ export class PostService {
         return post
     }
 
-    async findAll(user: User, spaceId: number): Promise<[Post[], RoleAccessType]> {
+    async findAllPosts(user: User, spaceId: number): Promise<[Post[], RoleAccessType]> {
         // 권한 확인
         const userRole = await this.roleService.findRoleAssignment(spaceId, user.id);
         if (!userRole) {
@@ -85,6 +94,35 @@ export class PostService {
         // post 리스트 조회
         const posts = await this.postRepository.find({where: {space: {id: spaceId}}});
         return [posts, userRole.role.accessType]
+    }
+
+    async createChat(user: User, postId: number, createChatDto: CreateChatDto): Promise<Chat> {
+        // post 확인
+        const post = await this.findPost(user, postId)
+        // chat 작성
+        return await this.chatRepository.save({
+            user: user,
+            post: post,
+            content: createChatDto.content,
+            isAnonymous: createChatDto.isAnonymous,
+        })
+    }
+
+    async createComment(user: User, postId: number, chatId: number, createCommentDto: CreateCommentDto): Promise<Comment> {
+        // post 확인
+        const post = await this.findPost(user, postId);
+        // chat 확인
+        const chat = await this.chatRepository.findOne({where: {id: chatId}});
+        if (!chat) {
+            throw new NotFoundException()
+        }
+        // comment 작성
+        return await this.commentRepository.save({
+            chat: chat,
+            user: user,
+            content: createCommentDto.content,
+            isAnonymous: createCommentDto.isAnonymous,
+        })
     }
 
 }

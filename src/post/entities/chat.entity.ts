@@ -1,20 +1,19 @@
 import {
     Column,
-    CreateDateColumn,
-    DeleteDateColumn,
-    Entity, JoinColumn,
+    CreateDateColumn, DeleteDateColumn,
+    Entity,
+    JoinColumn,
     ManyToOne, OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
-import {PostType} from "../type/post-type";
-import {Space} from "../../space/entities/space.entity";
 import {User} from "../../user/entity/user.entity";
-import {Chat} from "./chat.entity";
-import {Exclude} from "class-transformer";
+import {Post} from "./post.entity";
+import {Comment} from "./comment.entity";
 
-@Entity({name: 'post'})
-export class Post {
+
+@Entity({name: 'chat'})
+export class Chat {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -26,17 +25,11 @@ export class Post {
     user: User;
 
     @Column({nullable: true})
-    spaceId: number;
+    postId: number;
 
-    @ManyToOne(() => Space, space => space.posts)
-    @JoinColumn([{name: 'spaceId', referencedColumnName: 'id'}])
-    space: Space;
-
-    @Column({type: "enum", enum: PostType})
-    postType: PostType;
-
-    @Column()
-    title: string;
+    @ManyToOne(() => Post, post => post.chats)
+    @JoinColumn([{name: 'postId', referencedColumnName: 'id'}])
+    post: Post;
 
     @Column()
     content: string;
@@ -53,6 +46,6 @@ export class Post {
     @DeleteDateColumn()
     deletedAt?: Date | null;
 
-    @OneToMany(() => Chat, (chat ) => chat.post)
-    chats: Chat[];
+    @OneToMany(() => Comment, (comment ) => comment.chat)
+    comments: Comment[];
 }

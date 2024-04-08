@@ -1,7 +1,7 @@
-import {Post} from "../entities/post.entity"
-import {PostResponseDto} from "./post-response.dto";
-import {PostsResponseDto} from "./posts-response.dto";
-import {RoleAccessType} from "../../role/type/role-access-type";
+import {Post} from "../../entities/post.entity"
+import {PostResponseDto} from "../post-response.dto";
+import {PostsResponseDto} from "../posts-response.dto";
+import {RoleAccessType} from "../../../role/type/role-access-type";
 
 export function mapToPostResponseDto(post: Post): PostResponseDto {
     return {
@@ -11,6 +11,8 @@ export function mapToPostResponseDto(post: Post): PostResponseDto {
         title: post.title,
         content: post.content,
         isAnonymous: post.isAnonymous,
+        createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
     }
 }
 
@@ -22,6 +24,8 @@ export function mapToPostsResponseDto(posts: Post[], accessType: RoleAccessType)
         dto.title = post.title;
         dto.content = post.content;
         dto.isAnonymous = post.isAnonymous;
+        dto.createdAt = post.createdAt;
+        dto.updatedAt = post.updatedAt;
 
         if (accessType === RoleAccessType.MEMBER && post.isAnonymous == true) {
             dto.userId = null;

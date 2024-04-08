@@ -1,11 +1,9 @@
-export class PostsResponseDto {
+export class CommentResponseDto {
     id: number;
     userId: number;
-    spaceId: number;
-    title: string;
+    chatId: number;
     content: string;
     isAnonymous: boolean;
     createdAt: Date;
     updatedAt: Date;
-    tags: string[];
 }

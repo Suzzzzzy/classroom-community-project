@@ -12,6 +12,8 @@ import {RoleAssignment} from "./role/entities/role-assignment";
 import {AccessCode} from "./space/entities/accesscode.entity";
 import { PostModule } from './post/post.module';
 import {Post} from "./post/entities/post.entity";
+import {Chat} from "./post/entities/chat.entity";
+import {Comment} from "./post/entities/comment.entity";
 
 
 @Module({
@@ -23,7 +25,7 @@ import {Post} from "./post/entities/post.entity";
         username: 'root',
         password: 'root',
         database: 'classum',
-        entities: [User, Space, Role, RoleAssignment, AccessCode, Post],
+        entities: [User, Space, Role, RoleAssignment, AccessCode, Post, Chat, Comment],
         synchronize: true,
         logging: true,
       }),

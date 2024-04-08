@@ -1,21 +1,25 @@
 import {
+  Body,
+  ClassSerializerInterceptor,
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
-  Delete,
+  Post,
   Req,
   UseGuards,
-  UseInterceptors,
-  ClassSerializerInterceptor
+  UseInterceptors
 } from '@nestjs/common';
-import { PostService } from './post.service';
-import { CreatePostDto } from './dto/create-post.dto';
+import {PostService} from './post.service';
+import {CreatePostDto} from './dto/create-post.dto';
 import {AuthGuard} from "../user/auth.guard";
-import {mapToPostResponseDto, mapToPostsResponseDto} from "./dto/post.mapper";
+import {mapToPostResponseDto, mapToPostsResponseDto} from "./dto/mapper/post.mapper";
 import {PostResponseDto} from "./dto/post-response.dto";
+import {CreateChatDto} from "./dto/create-chat.dto";
+import {Chat} from "./entities/chat.entity";
+import {mapToChatResponseDto} from "./dto/mapper/chat-mapper.dto";
+import {ChatResponseDto} from "./dto/chat-response.dto";
+import {mapToCommentResponseDto} from "./dto/mapper/comment-mapper.dto";
+import {CommentResponseDto} from "./dto/comment-response.dto";
 
 @Controller('posts')
 @UseGuards(AuthGuard)
@@ -24,23 +28,43 @@ export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post('spaces/:spaceId')
-  async create(@Req() req: any, @Param('spaceId') spaceId: string, @Body() createPostDto: CreatePostDto): Promise<PostResponseDto>   {
+  async createPost(@Req() req: any, @Param('spaceId') spaceId: string, @Body() createPostDto: CreatePostDto): Promise<PostResponseDto>   {
     const user = req.user
-    const newPost = await this.postService.create(user, +spaceId, createPostDto);
+    const newPost = await this.postService.createPost(user, +spaceId, createPostDto);
     return mapToPostResponseDto(newPost)
   }
 
   @Get('/:postId')
-  async findOne(@Req() req: any, @Param('postId') postId: string): Promise<PostResponseDto> {
+  async findPost(@Req() req: any, @Param('postId') postId: string): Promise<PostResponseDto> {
     const user = req.user
-    const post =  await this.postService.findOne(user, +postId);
+    const post =  await this.postService.findPost(user, +postId);
     return mapToPostResponseDto(post)
   }
 
   @Get('/spaces/:spaceId')
-  async findAll(@Req() req: any, @Param('spaceId') spaceId: string): Promise<PostResponseDto[]> {
+  async findAllPosts(@Req() req: any, @Param('spaceId') spaceId: string): Promise<PostResponseDto[]> {
     const user = req.user
-    const [posts, accessType] = await this.postService.findAll(user,+spaceId)
+    const [posts, accessType] = await this.postService.findAllPosts(user,+spaceId)
     return mapToPostsResponseDto(posts, accessType)
   }
+
+  @Post('/:postId/chats')
+  async createChat(@Req() req: any, @Param('postId') postId: string, @Body() createChatDto: CreateChatDto): Promise<ChatResponseDto>   {
+    const user = req.user
+    const newChat = await this.postService.createChat(user, +postId, createChatDto)
+    return mapToChatResponseDto(newChat)
+  }
+
+  @Post('/:postId/chats/:chatId')
+  async createComment(
+      @Req() req: any,
+      @Param('postId') postId: string,
+      @Param('chatId') chatId: string,
+      @Body() createChatDto: CreateChatDto
+  ): Promise<CommentResponseDto> {
+    const user = req.user
+    const newComment = await this.postService.createComment(user, +postId, +chatId, createChatDto)
+    return mapToCommentResponseDto(newComment)
+  }
+
 }
