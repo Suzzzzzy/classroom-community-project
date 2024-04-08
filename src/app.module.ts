@@ -1,4 +1,4 @@
-import {Module, ValidationPipe} from '@nestjs/common';
+import {MiddlewareConsumer, Module, NestModule, ValidationPipe} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {TypeOrmModule} from "@nestjs/typeorm";
@@ -16,6 +16,7 @@ import {Chat} from "./post/entities/chat.entity";
 import {Comment} from "./post/entities/comment.entity";
 import {ConfigModule} from "@nestjs/config";
 import * as process from "node:process";
+import {LoggerMiddleware} from "./logger/logger.middleware";
 
 
 @Module({
@@ -46,4 +47,10 @@ import * as process from "node:process";
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule{
+    configure(consumer: MiddlewareConsumer): any {
+        if (process.env.NODE_ENV === 'dev') {
+            consumer.apply(LoggerMiddleware).forRoutes('*')
+        }
+    }
+}
