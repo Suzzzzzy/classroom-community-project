@@ -31,9 +31,7 @@ export class Role {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @DeleteDateColumn()
-    deletedAt?: Date | null;
-
+    @DeleteDateColumn()ㅜ
     @ManyToOne(() => Space, space => space.roles)
     @JoinColumn([{name: 'space_id', referencedColumnName: 'id'}])
     space: Space;
