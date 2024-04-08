@@ -2,7 +2,7 @@ import {
     ForbiddenException,
     forwardRef,
     Inject,
-    Injectable,
+    Injectable, InternalServerErrorException,
     NotFoundException
 } from '@nestjs/common';
 import {CreatePostDto} from './dto/create-post.dto';
@@ -123,6 +123,40 @@ export class PostService {
             content: createCommentDto.content,
             isAnonymous: createCommentDto.isAnonymous,
         })
+    }
+
+    async deleteChat(user: User, postId: number, chatId: number) {
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        try {
+            // post 확인
+            const post = await this.getOnePost(postId);
+            // chat 확인
+            const chat = await this.chatRepository.createQueryBuilder('chat')
+                .leftJoinAndSelect('chat.comments', 'comments')
+                .where('chat.id = :chatId', {chatId})
+                .getOne();
+            if (!chat) {
+                throw new NotFoundException()
+            }
+            // 권한 확인
+            const role = await this.roleService.findRoleAssignment(post.spaceId, user.id);
+            if (!role) {
+                throw new ForbiddenException('공간에 참여 중인 사용자가 아닙니다.')
+            }
+            if (user.id === chat.userId || role.role.accessType === RoleAccessType.ADMIN) {
+                await this.commentRepository.softRemove(chat.comments)
+                await this.chatRepository.softRemove(chat)
+            } else {
+                throw new ForbiddenException('삭제할 권한이 없습니다.')
+            }
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+            throw error;
+        } finally {
+            await queryRunner.release();
+        }
     }
 
 }

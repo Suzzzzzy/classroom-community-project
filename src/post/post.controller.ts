@@ -1,7 +1,7 @@
 import {
   Body,
   ClassSerializerInterceptor,
-  Controller,
+  Controller, Delete,
   Get,
   Param,
   Post,
@@ -25,10 +25,11 @@ import {CommentResponseDto} from "./dto/comment-response.dto";
 @UseGuards(AuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(private readonly postService: PostService) {
+  }
 
   @Post('spaces/:spaceId')
-  async createPost(@Req() req: any, @Param('spaceId') spaceId: string, @Body() createPostDto: CreatePostDto): Promise<PostResponseDto>   {
+  async createPost(@Req() req: any, @Param('spaceId') spaceId: string, @Body() createPostDto: CreatePostDto): Promise<PostResponseDto> {
     const user = req.user
     const newPost = await this.postService.createPost(user, +spaceId, createPostDto);
     return mapToPostResponseDto(newPost)
@@ -37,19 +38,19 @@ export class PostController {
   @Get('/:postId')
   async findPost(@Req() req: any, @Param('postId') postId: string): Promise<PostResponseDto> {
     const user = req.user
-    const post =  await this.postService.findPost(user, +postId);
+    const post = await this.postService.findPost(user, +postId);
     return mapToPostResponseDto(post)
   }
 
   @Get('/spaces/:spaceId')
   async findAllPosts(@Req() req: any, @Param('spaceId') spaceId: string): Promise<PostResponseDto[]> {
     const user = req.user
-    const [posts, accessType] = await this.postService.findAllPosts(user,+spaceId)
+    const [posts, accessType] = await this.postService.findAllPosts(user, +spaceId)
     return mapToPostsResponseDto(posts, accessType)
   }
 
   @Post('/:postId/chats')
-  async createChat(@Req() req: any, @Param('postId') postId: string, @Body() createChatDto: CreateChatDto): Promise<ChatResponseDto>   {
+  async createChat(@Req() req: any, @Param('postId') postId: string, @Body() createChatDto: CreateChatDto): Promise<ChatResponseDto> {
     const user = req.user
     const newChat = await this.postService.createChat(user, +postId, createChatDto)
     return mapToChatResponseDto(newChat)
@@ -67,4 +68,14 @@ export class PostController {
     return mapToCommentResponseDto(newComment)
   }
 
+  @Delete('/:postId/chats/:chatId')
+  async deleteChat(
+      @Req() req: any,
+      @Param('postId') postId: string,
+      @Param('chatId') chatId: string,
+  ): Promise<string> {
+    const user = req.user
+    await this.postService.deleteChat(user, +postId, +chatId)
+    return '삭제 완료'
+  }
 }

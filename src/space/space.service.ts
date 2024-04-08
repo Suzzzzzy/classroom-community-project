@@ -8,7 +8,7 @@ import {
 import {CreateSpaceDto} from './dto/create-space.dto';
 import {InjectRepository} from "@nestjs/typeorm";
 import {Space} from "./entities/space.entity";
-import {DataSource, Repository} from "typeorm";
+import {DataSource, getConnection, Repository} from "typeorm";
 import {RoleAccessType} from "../role/type/role-access-type";
 import {RoleService} from "../role/role.service";
 import {generateAccessCode} from "../utils/generator";
@@ -17,13 +17,16 @@ import {RoleAssignment} from "../role/entities/role-assignment";
 import {Role} from "../role/entities/role.entity";
 import {JoinSpaceDto} from "./dto/join-space.dto";
 import {AccessCode} from "./entities/accesscode.entity";
+import {Post} from "../post/entities/post.entity";
+import {Chat} from "../post/entities/chat.entity";
+import {Comment} from "../post/entities/comment.entity"
 
 @Injectable()
 export class SpaceService {
   constructor(
       @InjectRepository(Space)
       private spaceRepository: Repository<Space>,
-      @Inject(forwardRef(() =>RoleService))
+      @Inject(forwardRef(() => RoleService))
       private roleService: RoleService,
       private readonly dataSource: DataSource,
       @InjectRepository(RoleAssignment)
@@ -31,8 +34,15 @@ export class SpaceService {
       @InjectRepository(Role)
       private roleRepository: Repository<Role>,
       @InjectRepository(AccessCode)
-      private accessCodeRepository: Repository<AccessCode>
+      private accessCodeRepository: Repository<AccessCode>,
+      @InjectRepository(Post)
+      private postRepository: Repository<Post>,
+      @InjectRepository(Chat)
+      private chatRepository: Repository<Chat>,
+      @InjectRepository(Comment)
+      private commentRepository: Repository<Comment>,
   ) {
+
   }
   async create(user: User, createSpaceDto: CreateSpaceDto): Promise<[Space, string ,string]>{
     const queryRunner = this.dataSource.createQueryRunner();
@@ -80,7 +90,7 @@ export class SpaceService {
       return [newSpace, adminAccessCode, memberAccessCode];
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new InternalServerErrorException('공간 생성에 실패했습니다.', error.message);
+      throw error
     } finally {
       await queryRunner.release();
     }
@@ -91,34 +101,51 @@ export class SpaceService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-    // 공간 조회
-    const space = await this.findOne(spaceId)
-    if (!space) {
-      throw new NotFoundException('존재하지 않는 공간 입니다.')
-    }
-    // 소유자 권한 확인
-    const userRole = await this.roleService.findRoleAssignment(spaceId, user.id);
-    if (!userRole || userRole.isOwner == 0) {
-      throw new ForbiddenException('공간 삭제 권한이 없습니다.')
-    }
-    // 공간 입장 코드 삭제
-    await this.accessCodeRepository.softRemove({space: {id: spaceId}})
-    // 역할 할당 삭제
-    const roles = await this.roleRepository.find({
-      where: { space: { id: spaceId } },
-      relations: ['roleAssignments']
-    });
-    for (const role of roles) {
-      const roleAssignments = role.roleAssignments
-      await this.roleAssignmentRepository.softRemove(roleAssignments)
-    }
-    // 관련 역할 삭제
-    await this.roleRepository.softDelete({space: {id: spaceId}})
-    // 공간 삭제
-    await this.spaceRepository.softDelete(spaceId);
+      // 공간 조회
+      const space = await this.spaceRepository.createQueryBuilder('space')
+          .leftJoinAndSelect('space.posts', 'posts')
+          .leftJoinAndSelect('posts.chats', 'chats')
+          .leftJoinAndSelect('chats.comments', 'comments')
+          .where('space.id = :spaceId', {spaceId})
+          .getOne();
+      if (!space) {
+        throw new NotFoundException('존재하지 않는 공간 입니다.')
+      }
+      // 소유자 권한 확인
+      const userRole = await this.roleService.findRoleAssignment(spaceId, user.id);
+      if (!userRole || userRole.isOwner == 0) {
+        throw new ForbiddenException('공간 삭제 권한이 없습니다.')
+      }
+      // 공간 입장 코드 삭제
+      await this.accessCodeRepository.softRemove({space: {id: spaceId}})
+      // 역할 할당 삭제
+      const roles = await this.roleRepository.find({
+        where: {space: {id: spaceId}},
+        relations: ['roleAssignments']
+      });
+      for (const role of roles) {
+        const roleAssignments = role.roleAssignments
+        await this.roleAssignmentRepository.softRemove(roleAssignments)
+      }
+      // 관련 역할 삭제
+      await this.roleRepository.softDelete({space: {id: spaceId}})
+      // 관련 post, chat, comment 삭제
+      if (space) {
+        for (const post of space.posts) {
+          for (const chat of post.chats) {
+            for (const comment of chat.comments) {
+              await this.commentRepository.softRemove(comment);
+            }
+            await this.chatRepository.softRemove(chat)
+          }
+          await this.postRepository.softRemove(post)
+        }
+      }
+      // 공간 삭제
+      await this.spaceRepository.softDelete(spaceId);
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new InternalServerErrorException('공간 삭제에 실패했습니다.', error.message);
+      throw error;
     } finally {
       await queryRunner.release();
     }

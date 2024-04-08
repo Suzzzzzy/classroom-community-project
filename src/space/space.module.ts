@@ -7,10 +7,13 @@ import {Space} from "./entities/space.entity";
 import {RoleAssignment} from "../role/entities/role-assignment";
 import {AccessCode} from "./entities/accesscode.entity";
 import {RoleModule} from "../role/role.module";
+import {Post} from "../post/entities/post.entity"
+import {Chat} from "../post/entities/chat.entity"
+import {Comment} from "../post/entities/comment.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Space, Role, RoleAssignment, AccessCode]),
+    TypeOrmModule.forFeature([Space, Role, RoleAssignment, AccessCode, Post, Chat, Comment]),
     forwardRef(() =>RoleModule),
   ],
   controllers: [SpaceController],
