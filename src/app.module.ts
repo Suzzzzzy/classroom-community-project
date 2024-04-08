@@ -14,17 +14,26 @@ import { PostModule } from './post/post.module';
 import {Post} from "./post/entities/post.entity";
 import {Chat} from "./post/entities/chat.entity";
 import {Comment} from "./post/entities/comment.entity";
+import {ConfigModule} from "@nestjs/config";
+import * as process from "node:process";
 
 
 @Module({
   imports: [
-      TypeOrmModule.forRoot({
+      ConfigModule.forRoot({
+          envFilePath:
+              process.env.NODE_ENV === 'prod'
+                  ? '.prod.env'
+                  : '.dev.env',
+          isGlobal: true,
+      }),
+          TypeOrmModule.forRoot({
         type: 'mysql',
-        host: 'localhost',
-        port: 3306,
-        username: 'root',
-        password: 'root',
-        database: 'classum',
+        host: 'localhost', // process.env.DATABASE_HOSTNAME,
+        port: +process.env.DATABASE_PORT,
+        username: process.env.DATABASE_USERNAME,
+        password: process.env.DATABASE_PASSWORD,
+        database: process.env.DATABASE_NAME,
         entities: [User, Space, Role, RoleAssignment, AccessCode, Post, Chat, Comment],
         synchronize: true,
         logging: true,

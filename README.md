@@ -51,11 +51,11 @@ $ npm run start:prod
 # unit tests
 $ npm run test
 
-# e2e tests
-$ npm run test:e2e
+# 개발 DB 실행
+$ docker-compose --env-file .dev.env up 
 
-# test coverage
-$ npm run test:cov
+# 프로덕션 DB 실행
+$ docker-compose --env-file .prod.env up 
 ```
 
 ## Support

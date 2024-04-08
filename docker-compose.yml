@@ -2,13 +2,16 @@ version: '3.8'
 
 services:
   mysql: # See Also: https://hub.docker.com/_/mysql
+    container_name: ${DATABASE_HOSTNAME}
+    env_file: .dev.env
     image: mysql:8.0.22
     platform: linux/amd64
-    hostname: hostname-mysql
+    hostname: ${DATABASE_HOSTNAME}
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: classum
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
     ports:
-      - 3306:3306
+      - ${DATABASE_PORT}:${DATABASE_PORT}
+

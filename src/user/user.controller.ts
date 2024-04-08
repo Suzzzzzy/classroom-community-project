@@ -17,6 +17,7 @@ import * as bcrypt from 'bcrypt';
 import {JwtService} from "@nestjs/jwt";
 import { AuthGuard } from './auth.guard';
 import {mapToDefaultUserDto, mapToPublicUserDto} from "./dto/mapper/user.mapper";
+import * as process from "node:process";
 
 @Controller('users')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -33,7 +34,7 @@ export class UserController {
       throw new ConflictException('이미 사용중인 이메일 입니다.');
     }
     const userEntity = await this.userService.create(createUserDto);
-
+    console.log(process.env.DATABASE_HOST)
     return mapToDefaultUserDto(userEntity)
   }
 
@@ -51,9 +52,11 @@ export class UserController {
       id: user.id,
     }
     const accessToken = this.jwtService.sign(payload);
+
+    const refreshToken = this.jwtService.sign(payload, {expiresIn: '30d' });
     return {
       accessToken: accessToken,
-      refreshToken: ""
+      refreshToken: refreshToken,
     }
   }
 
