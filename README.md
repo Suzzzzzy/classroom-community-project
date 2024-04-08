@@ -14,7 +14,7 @@
 # 데이터베이스
 - MySQL 8.0.22
 - 테이블 구조는 아래와 같습니다.
-- ![image](https://github.com/Suzzzzzy/community_project/assets/97580836/23c4c003-d266-450b-ac8f-9a7524815106)
+<img width="504" alt="image" src="https://github.com/Suzzzzzy/community_project/assets/97580836/9356e57b-ec32-4f12-b1b5-4f9dc04feb8b">
 
 
 ## 데이터베이스 실행 방법
@@ -23,57 +23,29 @@
 데이터베이스를 docker-compose 로 구성하고 환경에 따라 DB를 세팅합니다.
 - 개발 DB 세팅
 ```bash
-docker-compose --env-file .dev.env up -d    
+$ docker-compose --env-file .dev.env up -d    
 ```
 - 프로덕션 DB 세팅
 ```bash
-docker-compose --env-file .prod.env up -d    
+$ docker-compose --env-file .prod.env up -d    
 ```
 
 # 프로젝트 실행 방법
+프로젝트에 필요한 모듈 설치
+```bash
+$ npm install
+```
 DB를 먼저 실행 시킨 후에 프로젝트를 실행시킵니다.
 - 개발 환경에서 실행
 ```bash
-npm run start:dev
+$ npm run start:dev
 ```
 - 프로덕션 환경에서 실행
 ```bash
-npm run start:prod
+$ npm run start:prod
 ```
 http://localhost:8080/ 접속했을 때, "Hello World"가 출력된다면 데이터베이스와 서비스 실행이 성공적으로 실행된 것입니다.
 
 # API 명세서
 [postman api document](https://documenter.getpostman.com/view/19629582/2sA35MzzM5)
 
-
-## Installation
-
-```bash
-$ npm install
-```
-
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# 개발 DB 실행
-$ docker-compose --env-file .dev.env up 
-
-# 프로덕션 DB 실행
-$ docker-compose --env-file .prod.env up 
-```
