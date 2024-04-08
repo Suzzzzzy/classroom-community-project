@@ -14,7 +14,8 @@
 # 데이터베이스
 - MySQL 8.0.22
 - 테이블 구조는 아래와 같습니다.
-![img.png](img.png)
+- ![image](https://github.com/Suzzzzzy/community_project/assets/97580836/23c4c003-d266-450b-ac8f-9a7524815106)
+
 
 ## 데이터베이스 실행 방법
 도커 설치가 필요합니다.
