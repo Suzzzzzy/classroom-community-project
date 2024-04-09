@@ -89,30 +89,56 @@ export class PostService {
         return post
     }
 
-    async findAllPosts(user: User, spaceId: number): Promise<[Post[], RoleAccessType]> {
+    async findAllPosts(user: User, spaceId: number): Promise<[Post[], Post[], RoleAccessType]> {
         // 권한 확인
         const userRole = await this.roleService.findRoleAssignment(spaceId, user.id);
         if (!userRole) {
             throw new ForbiddenException('공간에 참여 중인 사용자가 아닙니다.')
         }
         // post 리스트 조회
+        // 인기게시물 조회
+        const popularPosts = await this.postRepository.createQueryBuilder("post")
+            .where("post.spaceId = :spaceId", {spaceId})
+            .andWhere('post.chatAndCommentCount > 0')
+            .orderBy("post.chatAndCommentCount", "DESC")
+            .limit(5)
+            .getMany();
+
         const posts = await this.postRepository.find({where: {space: {id: spaceId}}});
-        return [posts, userRole.role.accessType]
+        const otherPosts  = posts.filter(post => !popularPosts.some(popularPost => popularPost.id === post.id));
+
+        return [popularPosts, otherPosts, userRole.role.accessType]
     }
 
     async createChat(user: User, postId: number, createChatDto: CreateChatDto): Promise<Chat> {
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        try {
         // post 확인
         const post = await this.findPost(user, postId)
         // chat 작성
-        return await this.chatRepository.save({
-            user: user,
-            postId: postId,
-            content: createChatDto.content,
-            isAnonymous: createChatDto.isAnonymous,
-        })
+            post[0].chatAndCommentCount = +1;
+            await this.postRepository.save(post[0]);
+            return await this.chatRepository.save({
+                user: user,
+                postId: postId,
+                content: createChatDto.content,
+                isAnonymous: createChatDto.isAnonymous,
+            });
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+            throw error;
+        } finally {
+            await queryRunner.release();
+        }
     }
 
     async createComment(user: User, postId: number, chatId: number, createCommentDto: CreateCommentDto): Promise<Comment> {
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        try {
         // post 확인
         const post = await this.findPost(user, postId);
         // chat 확인
@@ -121,12 +147,20 @@ export class PostService {
             throw new NotFoundException()
         }
         // comment 작성
-        return await this.commentRepository.save({
-            chat: chat,
-            user: user,
-            content: createCommentDto.content,
-            isAnonymous: createCommentDto.isAnonymous,
-        })
+            post[0].chatAndCommentCount = +1;
+            await this.postRepository.save(post[0]);
+            return await this.commentRepository.save({
+                chat: chat,
+                user: user,
+                content: createCommentDto.content,
+                isAnonymous: createCommentDto.isAnonymous,
+            });
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+            throw error;
+        } finally {
+            await queryRunner.release();
+        }
     }
 
     async deleteChat(user: User, postId: number, chatId: number) {

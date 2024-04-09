@@ -47,8 +47,8 @@ export class PostController {
   @Get('/spaces/:spaceId')
   async findAllPosts(@Req() req: any, @Param('spaceId') spaceId: string): Promise<PostsResponseDto[]> {
     const user = req.user
-    const [posts, accessType] = await this.postService.findAllPosts(user, +spaceId)
-    return mapToPostsResponseDto(posts, accessType)
+    const [popularPosts, otherPosts, accessType] = await this.postService.findAllPosts(user, +spaceId)
+    return mapToPostsResponseDto(popularPosts, otherPosts, accessType)
   }
 
   @Post('/:postId/chats')

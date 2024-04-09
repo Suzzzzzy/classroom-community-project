@@ -3,7 +3,6 @@ version: '3.8'
 services:
   mysql: # See Also: https://hub.docker.com/_/mysql
     container_name: ${DATABASE_HOSTNAME}
-    env_file: .dev.env
     image: mysql:8.0.22
     platform: linux/amd64
     hostname: ${DATABASE_HOSTNAME}

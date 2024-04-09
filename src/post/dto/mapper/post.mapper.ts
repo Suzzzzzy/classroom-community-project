@@ -77,8 +77,27 @@ export function mapToPostResponseDto(post: Post, accessType: RoleAccessType, cha
     return dto
 }
 
-export function mapToPostsResponseDto(posts: Post[], accessType: RoleAccessType): PostsResponseDto[] {
-    return posts.map(post => {
+export function mapToPostsResponseDto(popularPosts: Post[], otherPosts: Post[], accessType: RoleAccessType): PostsResponseDto[] {
+    const popularPostsDto = popularPosts.map(post => {
+        const dto = new PostsResponseDto();
+        dto.id = post.id;
+        dto.spaceId = post.spaceId;
+        dto.title = post.title;
+        dto.content = post.content;
+        dto.isAnonymous = post.isAnonymous;
+        dto.createdAt = post.createdAt;
+        dto.updatedAt = post.updatedAt;
+        dto.tags = ['인기'];
+
+        if (accessType === RoleAccessType.MEMBER && post.isAnonymous == true) {
+            dto.userId = null;
+        } else {
+            dto.userId = post.userId;
+        }
+        return dto;
+    });
+
+    const otherPostsDto = otherPosts.map(post => {
         const dto = new PostsResponseDto();
         dto.id = post.id;
         dto.spaceId = post.spaceId;
@@ -95,4 +114,6 @@ export function mapToPostsResponseDto(posts: Post[], accessType: RoleAccessType)
         }
         return dto
     })
+    return [...popularPostsDto, ...otherPostsDto]
+
 }

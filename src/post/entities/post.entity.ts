@@ -44,6 +44,9 @@ export class Post {
     @Column()
     isAnonymous: boolean;
 
+    @Column({ default: 0 })
+    chatAndCommentCount: number| 0;
+
     @CreateDateColumn()
     createdAt: Date;
 
