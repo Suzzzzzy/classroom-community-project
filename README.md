@@ -49,3 +49,24 @@ http://localhost:8080/ 접속했을 때, "Hello World"가 출력된다면 데이
 # API 명세서
 [postman api document](https://documenter.getpostman.com/view/19629582/2sA35MzzM5)
 
+# 추가 개발 계획
+시간이 부족하여 못다한 개발에 대하여 계획을 작성해보았습니다.
+## 파일 및 이미지 업로드
+- Multer 라이브러리를 사용하여 파일을 업로드 합니다.
+- s3를 연결하여 파일을 저장합니다.
+- 파일 업로드 후 응답받은 url을 클라이언트로 부터 전달받아 DB에 저장합니다.
+
+## '좋아요' 및 '궁금해요' 신규기능 추가
+- like 테이블을 만들고 post테이블의 id와 매핑되는 post_id 칼럼, user테이블의 id와 매핑되는 user_id을 지정합니다.
+- post 테이블에 likeCount 필드를 새로 추가합니다.
+- [POST] 메소드로 좋아요 기능을 구현합니다.
+- 요청시 like 데이터가 생성되고, post테이블의 likeCount 칼럼은 +1 저장합니다.
+- '궁금해요' 기능도 같은 방식으로 구현합니다.
+- 또한 FindAllPosts(post 목록 조회) 기능에서 '궁금해요' count 조건도 추가합니다.
+
+## 게시글 상태 표시 신규기능 추가
+- 유저의 post 조회 history 테이블을 생성합니다.
+- 1. 조회 기록이 없다면 '새로운 게시글 입니다.' 태그를 추가합니다.
+- 2. post.updated_at 값이 postHistory.createdAt 보다 최신이라면 '게시글이 수정되었습니다.' 태그를 추가합니다.
+- 3. post.chats의 가장 최신 chat.create_at 값이 postHistory.createdAt 보다 최신이라면 '새로운 댓글이 달렸습니다.' 태그를 추가합니다.
+- 태그 우선순위에 따라 한 개의 태그만 응답합니다.
