@@ -12,8 +12,8 @@ import {Post} from "./post.entity";
 import {Comment} from "./comment.entity";
 
 
-@Entity({name: 'chat'})
-export class Chat {
+@Entity({name: 'reply'})
+export class Reply {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -27,7 +27,7 @@ export class Chat {
     @Column({nullable: true})
     postId: number;
 
-    @ManyToOne(() => Post, post => post.chats)
+    @ManyToOne(() => Post, post => post.replies)
     @JoinColumn([{name: 'postId', referencedColumnName: 'id'}])
     post: Post;
 
@@ -46,6 +46,6 @@ export class Chat {
     @DeleteDateColumn()
     deletedAt?: Date | null;
 
-    @OneToMany(() => Comment, (comment ) => comment.chat)
+    @OneToMany(() => Comment, (comment ) => comment.reply)
     comments: Comment[];
 }

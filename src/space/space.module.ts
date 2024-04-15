@@ -8,12 +8,12 @@ import {RoleAssignment} from "../role/entities/role-assignment";
 import {AccessCode} from "./entities/accesscode.entity";
 import {RoleModule} from "../role/role.module";
 import {Post} from "../post/entities/post.entity"
-import {Chat} from "../post/entities/chat.entity"
+import {Reply} from "../post/entities/reply.entity"
 import {Comment} from "../post/entities/comment.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Space, Role, RoleAssignment, AccessCode, Post, Chat, Comment]),
+    TypeOrmModule.forFeature([Space, Role, RoleAssignment, AccessCode, Post, Reply, Comment]),
     forwardRef(() =>RoleModule),
   ],
   controllers: [SpaceController],

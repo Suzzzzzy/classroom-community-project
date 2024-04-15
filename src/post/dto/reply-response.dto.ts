@@ -1,6 +1,6 @@
 import {CommentResponseDto} from "./comment-response.dto";
 
-export class ChatDefaultDto {
+export class ReplyResponseDto {
     id: number;
     userId: number;
     postId: number;
@@ -8,4 +8,5 @@ export class ChatDefaultDto {
     isAnonymous: boolean;
     createdAt: Date;
     updatedAt: Date;
+    comments: CommentResponseDto[];
 }

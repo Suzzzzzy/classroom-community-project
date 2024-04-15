@@ -14,14 +14,13 @@ import {CreatePostDto} from './dto/create-post.dto';
 import {AuthGuard} from "../user/auth.guard";
 import {mapToDefaultPostResponseDto, mapToPostResponseDto, mapToPostsResponseDto} from "./dto/mapper/post.mapper";
 import {PostResponseDto} from "./dto/post-response.dto";
-import {CreateChatDto} from "./dto/create-chat.dto";
-import {mapToChatResponseDto} from "./dto/mapper/chat-mapper.dto";
-import {ChatResponseDto} from "./dto/chat-response.dto";
+import {CreateReplyDto} from "./dto/create-reply.dto";
+import {mapToReplyResponseDto} from "./dto/mapper/reply-mapper.dto";
 import {mapToCommentResponseDto} from "./dto/mapper/comment-mapper.dto";
 import {CommentResponseDto} from "./dto/comment-response.dto";
 import {PostsResponseDto} from "./dto/posts-response.dto";
 import {PostDefaultDto} from "./dto/post-default.dto";
-import {ChatDefaultDto} from "./dto/chat-default.dto";
+import {ReplyDefaultDto} from "./dto/reply-default.dto";
 
 @Controller('posts')
 @UseGuards(AuthGuard)
@@ -40,8 +39,8 @@ export class PostController {
   @Get('/:postId')
   async findPost(@Req() req: any, @Param('postId') postId: string): Promise<PostResponseDto> {
     const user = req.user
-    const  [post, chats, accessType] = await this.postService.findPost(user, +postId);
-    return mapToPostResponseDto(post, accessType, chats)
+    const  [post, replies, accessType] = await this.postService.findPost(user, +postId);
+    return mapToPostResponseDto(post, accessType, replies)
   }
 
   @Get('/spaces/:spaceId')
@@ -51,43 +50,43 @@ export class PostController {
     return mapToPostsResponseDto(popularPosts, otherPosts, accessType)
   }
 
-  @Post('/:postId/chats')
-  async createChat(@Req() req: any, @Param('postId') postId: string, @Body() createChatDto: CreateChatDto): Promise<ChatDefaultDto> {
+  @Post('/:postId/replies')
+  async createReply(@Req() req: any, @Param('postId') postId: string, @Body() createReplyDto: CreateReplyDto): Promise<ReplyDefaultDto> {
     const user = req.user
-    const newChat = await this.postService.createChat(user, +postId, createChatDto)
-    return mapToChatResponseDto(newChat)
+    const newReply = await this.postService.createReply(user, +postId, createReplyDto)
+    return mapToReplyResponseDto(newReply)
   }
 
-  @Post('/:postId/chats/:chatId')
+  @Post('/:postId/replies/:replyId')
   async createComment(
       @Req() req: any,
       @Param('postId') postId: string,
-      @Param('chatId') chatId: string,
-      @Body() createChatDto: CreateChatDto
+      @Param('replyId') replyId: string,
+      @Body() createReplyDto: CreateReplyDto
   ): Promise<CommentResponseDto> {
     const user = req.user
-    const newComment = await this.postService.createComment(user, +postId, +chatId, createChatDto)
+    const newComment = await this.postService.createComment(user, +postId, +replyId, createReplyDto)
     return mapToCommentResponseDto(newComment)
   }
 
-  @Delete('/:postId/chats/:chatId')
-  async deleteChat(
+  @Delete('/:postId/replies/:replyId')
+  async deleteReply(
       @Req() req: any,
       @Param('postId') postId: string,
-      @Param('chatId') chatId: string,
+      @Param('replyId') replyId: string,
   ): Promise<string> {
     const user = req.user
-    await this.postService.deleteChat(user, +postId, +chatId)
+    await this.postService.deleteReply(user, +postId, +replyId)
     return '삭제 완료'
   }
 
   @Get('/users/user')
   async findAllByUser(@Req() req: any): Promise<any> {
     const user = req.user
-    const {myPosts, myChats, myComments} = await this.postService.findAllByUser(user)
+    const {myPosts, myReplies, myComments} = await this.postService.findAllByUser(user)
     const posts = myPosts.map(post => mapToDefaultPostResponseDto(post));
-    const chats = myChats.map(chat => mapToChatResponseDto(chat));
+    const replies = myReplies.map(reply => mapToReplyResponseDto(reply));
     const comments = myComments.map(comment => mapToCommentResponseDto(comment));
-    return {posts, chats, comments};
+    return {posts, replies, comments};
   }
 }

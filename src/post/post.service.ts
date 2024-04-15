@@ -14,9 +14,9 @@ import {SpaceService} from "../space/space.service";
 import {User} from "../user/entity/user.entity";
 import {RoleAccessType} from "../role/type/role-access-type";
 import {PostType} from "./type/post-type";
-import {Chat} from "./entities/chat.entity";
+import {Reply} from "./entities/reply.entity";
 import {Comment} from "./entities/comment.entity";
-import {CreateChatDto} from "./dto/create-chat.dto";
+import {CreateReplyDto} from "./dto/create-reply.dto";
 import {CreateCommentDto} from "./dto/create-comment.dto";
 
 @Injectable()
@@ -28,8 +28,8 @@ export class PostService {
         private roleService: RoleService,
         @Inject(forwardRef(() => SpaceService))
         private spaceService: SpaceService,
-        @InjectRepository(Chat)
-        private chatRepository: Repository<Chat>,
+        @InjectRepository(Reply)
+        private replyRepository: Repository<Reply>,
         @InjectRepository(Comment)
         private commentRepository: Repository<Comment>,
         private readonly dataSource: DataSource,
@@ -61,7 +61,7 @@ export class PostService {
       });
   }
 
-    async findPost(user: User, postId: number): Promise<[Post, Chat[], RoleAccessType]> {
+    async findPost(user: User, postId: number): Promise<[Post, Reply[], RoleAccessType]> {
         const post = await this.getOnePost(postId)
         // 권한 확인
         const userRole = await this.roleService.findRoleAssignment(post.spaceId, user.id);
@@ -71,11 +71,11 @@ export class PostService {
         if (post.isAnonymous == true && userRole.role.accessType == RoleAccessType.MEMBER) {
             throw new NotFoundException()
         } else {
-            const chatAndComments = await this.chatRepository.find({
+            const replyAndComments = await this.replyRepository.find({
                 where: {postId},
                 relations: ['comments']
             })
-            return [post, chatAndComments, userRole.role.accessType]
+            return [post, replyAndComments, userRole.role.accessType]
         }
     }
 
@@ -99,8 +99,8 @@ export class PostService {
         // 인기게시물 조회
         const popularPosts = await this.postRepository.createQueryBuilder("post")
             .where("post.spaceId = :spaceId", {spaceId})
-            .andWhere('post.chatAndCommentCount > 0')
-            .orderBy("post.chatAndCommentCount", "DESC")
+            .andWhere('post.replyAndCommentCount > 0')
+            .orderBy("post.replyAndCommentCount", "DESC")
             .limit(5)
             .getMany();
 
@@ -110,21 +110,21 @@ export class PostService {
         return [popularPosts, otherPosts, userRole.role.accessType]
     }
 
-    async createChat(user: User, postId: number, createChatDto: CreateChatDto): Promise<Chat> {
+    async createReply(user: User, postId: number, createReplyDto: CreateReplyDto): Promise<Reply> {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
         try {
         // post 확인
         const post = await this.findPost(user, postId)
-        // chat 작성
-            post[0].chatAndCommentCount = +1;
+        // reply 작성
+            post[0].replyAndCommentCount = +1;
             await this.postRepository.save(post[0]);
-            return await this.chatRepository.save({
+            return await this.replyRepository.save({
                 user: user,
                 postId: postId,
-                content: createChatDto.content,
-                isAnonymous: createChatDto.isAnonymous,
+                content: createReplyDto.content,
+                isAnonymous: createReplyDto.isAnonymous,
             });
         } catch (error) {
             await queryRunner.rollbackTransaction();
@@ -134,23 +134,23 @@ export class PostService {
         }
     }
 
-    async createComment(user: User, postId: number, chatId: number, createCommentDto: CreateCommentDto): Promise<Comment> {
+    async createComment(user: User, postId: number, replyId: number, createCommentDto: CreateCommentDto): Promise<Comment> {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
         try {
         // post 확인
         const post = await this.findPost(user, postId);
-        // chat 확인
-        const chat = await this.chatRepository.findOne({where: {id: chatId}});
-        if (!chat) {
+        // reply 확인
+        const reply = await this.replyRepository.findOne({where: {id: replyId}});
+        if (!reply) {
             throw new NotFoundException()
         }
         // comment 작성
-            post[0].chatAndCommentCount = +1;
+            post[0].replyAndCommentCount = +1;
             await this.postRepository.save(post[0]);
             return await this.commentRepository.save({
-                chat: chat,
+                reply: reply,
                 user: user,
                 content: createCommentDto.content,
                 isAnonymous: createCommentDto.isAnonymous,
@@ -163,19 +163,19 @@ export class PostService {
         }
     }
 
-    async deleteChat(user: User, postId: number, chatId: number) {
+    async deleteReply(user: User, postId: number, replyId: number) {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
         try {
             // post 확인
             const post = await this.getOnePost(postId);
-            // chat 확인
-            const chat = await this.chatRepository.createQueryBuilder('chat')
-                .leftJoinAndSelect('chat.comments', 'comments')
-                .where('chat.id = :chatId', {chatId})
+            // reply 확인
+            const reply = await this.replyRepository.createQueryBuilder('reply')
+                .leftJoinAndSelect('reply.comments', 'comments')
+                .where('reply.id = :replyId', {replyId})
                 .getOne();
-            if (!chat) {
+            if (!reply) {
                 throw new NotFoundException()
             }
             // 권한 확인
@@ -183,9 +183,9 @@ export class PostService {
             if (!role) {
                 throw new ForbiddenException('공간에 참여 중인 사용자가 아닙니다.')
             }
-            if (user.id === chat.userId || role.role.accessType === RoleAccessType.ADMIN) {
-                await this.commentRepository.softRemove(chat.comments)
-                await this.chatRepository.softRemove(chat)
+            if (user.id === reply.userId || role.role.accessType === RoleAccessType.ADMIN) {
+                await this.commentRepository.softRemove(reply.comments)
+                await this.replyRepository.softRemove(reply)
             } else {
                 throw new ForbiddenException('삭제할 권한이 없습니다.')
             }
@@ -197,11 +197,11 @@ export class PostService {
         }
     }
 
-    async findAllByUser(user: User) :Promise<{ myPosts: Post[], myChats: Chat[], myComments: Comment[] }>{
+    async findAllByUser(user: User) :Promise<{ myPosts: Post[], myReplies: Reply[], myComments: Comment[] }>{
         const posts = await this.postRepository.find({where: {userId: user.id}});
-        const chats = await this.chatRepository.find({where: {userId: user.id}});
+        const replies = await this.replyRepository.find({where: {userId: user.id}});
         const comments = await this.commentRepository.find({where: {userId: user.id}});
-        return {myPosts: posts, myChats: chats, myComments: comments}
+        return {myPosts: posts, myReplies: replies, myComments: comments}
     }
 
 }

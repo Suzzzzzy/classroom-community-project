@@ -5,7 +5,7 @@ export function mapToCommentResponseDto(comment: Comment): CommentResponseDto {
     return {
         id: comment.id,
         userId: comment.userId,
-        chatId: comment.chatId,
+        replyId: comment.replyId,
         content: comment.content,
         isAnonymous: comment.isAnonymous,
         createdAt: comment.createdAt,

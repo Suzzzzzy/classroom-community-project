@@ -1,4 +1,4 @@
-import {ChatResponseDto} from "./chat-response.dto";
+import {ReplyResponseDto} from "./reply-response.dto";
 
 export class PostDefaultDto {
     id: number;

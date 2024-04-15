@@ -1,7 +1,7 @@
 export class CommentResponseDto {
     id: number;
     userId: number;
-    chatId: number;
+    replyId: number;
     content: string;
     isAnonymous: boolean;
     createdAt: Date;

@@ -1,5 +1,5 @@
-import {Chat} from "../entities/chat.entity";
-import {ChatResponseDto} from "./chat-response.dto";
+import {Reply} from "../entities/reply.entity";
+import {ReplyResponseDto} from "./reply-response.dto";
 
 export class PostResponseDto {
     id: number;
@@ -10,5 +10,5 @@ export class PostResponseDto {
     isAnonymous: boolean;
     createdAt: Date;
     updatedAt: Date;
-    chats: ChatResponseDto[];
+    replies: ReplyResponseDto[];
 }

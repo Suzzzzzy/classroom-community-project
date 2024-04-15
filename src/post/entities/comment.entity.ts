@@ -8,7 +8,7 @@ import {
     UpdateDateColumn
 } from "typeorm";
 import {User} from "../../user/entity/user.entity";
-import {Chat} from "./chat.entity";
+import {Reply} from "./reply.entity";
 
 
 @Entity({name: 'comment'})
@@ -24,11 +24,11 @@ export class Comment {
     user: User;
 
     @Column({nullable: true})
-    chatId: number;
+    replyId: number;
 
-    @ManyToOne(() => Chat, chat => chat.comments)
-    @JoinColumn([{name: 'chatId', referencedColumnName: 'id'}])
-    chat: Chat;
+    @ManyToOne(() => Reply, reply => reply.comments)
+    @JoinColumn([{name: 'replyId', referencedColumnName: 'id'}])
+    reply: Reply;
 
     @Column()
     content: string;

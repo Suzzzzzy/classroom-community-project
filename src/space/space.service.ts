@@ -18,7 +18,7 @@ import {Role} from "../role/entities/role.entity";
 import {JoinSpaceDto} from "./dto/join-space.dto";
 import {AccessCode} from "./entities/accesscode.entity";
 import {Post} from "../post/entities/post.entity";
-import {Chat} from "../post/entities/chat.entity";
+import {Reply} from "../post/entities/reply.entity";
 import {Comment} from "../post/entities/comment.entity"
 
 @Injectable()
@@ -37,8 +37,8 @@ export class SpaceService {
       private accessCodeRepository: Repository<AccessCode>,
       @InjectRepository(Post)
       private postRepository: Repository<Post>,
-      @InjectRepository(Chat)
-      private chatRepository: Repository<Chat>,
+      @InjectRepository(Reply)
+      private replyRepository: Repository<Reply>,
       @InjectRepository(Comment)
       private commentRepository: Repository<Comment>,
   ) {
@@ -104,8 +104,8 @@ export class SpaceService {
       // 공간 조회
       const space = await this.spaceRepository.createQueryBuilder('space')
           .leftJoinAndSelect('space.posts', 'posts')
-          .leftJoinAndSelect('posts.chats', 'chats')
-          .leftJoinAndSelect('chats.comments', 'comments')
+          .leftJoinAndSelect('posts.replies', 'replies')
+          .leftJoinAndSelect('replies.comments', 'comments')
           .where('space.id = :spaceId', {spaceId})
           .getOne();
       if (!space) {
@@ -129,14 +129,14 @@ export class SpaceService {
       }
       // 관련 역할 삭제
       await this.roleRepository.softDelete({space: {id: spaceId}})
-      // 관련 post, chat, comment 삭제
+      // 관련 post, reply, comment 삭제
       if (space) {
         for (const post of space.posts) {
-          for (const chat of post.chats) {
-            for (const comment of chat.comments) {
+          for (const reply of post.replies) {
+            for (const comment of reply.comments) {
               await this.commentRepository.softRemove(comment);
             }
-            await this.chatRepository.softRemove(chat)
+            await this.replyRepository.softRemove(reply)
           }
           await this.postRepository.softRemove(post)
         }

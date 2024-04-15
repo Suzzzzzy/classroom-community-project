@@ -10,8 +10,7 @@ import {
 import {PostType} from "../type/post-type";
 import {Space} from "../../space/entities/space.entity";
 import {User} from "../../user/entity/user.entity";
-import {Chat} from "./chat.entity";
-import {Exclude} from "class-transformer";
+import {Reply} from "./reply.entity";
 
 @Entity({name: 'post'})
 export class Post {
@@ -45,7 +44,7 @@ export class Post {
     isAnonymous: boolean;
 
     @Column({ default: 0 })
-    chatAndCommentCount: number| 0;
+    replyAndCommentCount: number| 0;
 
     @CreateDateColumn()
     createdAt: Date;
@@ -56,6 +55,6 @@ export class Post {
     @DeleteDateColumn()
     deletedAt?: Date | null;
 
-    @OneToMany(() => Chat, (chat ) => chat.post)
-    chats: Chat[];
+    @OneToMany(() => Reply, (reply ) => reply.post)
+    replies: Reply[];
 }

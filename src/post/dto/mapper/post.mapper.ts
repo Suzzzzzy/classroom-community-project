@@ -2,8 +2,8 @@ import {Post} from "../../entities/post.entity"
 import {PostResponseDto} from "../post-response.dto";
 import {PostsResponseDto} from "../posts-response.dto";
 import {RoleAccessType} from "../../../role/type/role-access-type";
-import {Chat} from "../../entities/chat.entity";
-import {ChatResponseDto} from "../chat-response.dto";
+import {Reply} from "../../entities/reply.entity";
+import {ReplyResponseDto} from "../reply-response.dto";
 import {CommentResponseDto} from "../comment-response.dto";
 import {PostDefaultDto} from "../post-default.dto";
 
@@ -20,7 +20,7 @@ export function mapToDefaultPostResponseDto(post: Post): PostDefaultDto {
     }
 }
 
-export function mapToPostResponseDto(post: Post, accessType: RoleAccessType, chats: Chat[]): PostResponseDto {
+export function mapToPostResponseDto(post: Post, accessType: RoleAccessType, replies: Reply[]): PostResponseDto {
     const dto = new PostResponseDto();
     dto.id = post.id;
     dto.spaceId = post.spaceId;
@@ -36,26 +36,26 @@ export function mapToPostResponseDto(post: Post, accessType: RoleAccessType, cha
         dto.userId = post.userId;
     }
 
-    const chatsDto = chats.map(chat => {
-        const chatDto = new ChatResponseDto();
-        chatDto.id = chat.id;
-        chatDto.userId = chat.userId;
-        chatDto.postId = post.id;
-        chatDto.content = chat.content;
-        chatDto.isAnonymous = chat.isAnonymous;
-        chatDto.createdAt = chat.createdAt;
-        chatDto.updatedAt = chat.updatedAt;
+    const repliesDto = replies.map(reply => {
+        const replyDto = new ReplyResponseDto();
+        replyDto.id = reply.id;
+        replyDto.userId = reply.userId;
+        replyDto.postId = post.id;
+        replyDto.content = reply.content;
+        replyDto.isAnonymous = reply.isAnonymous;
+        replyDto.createdAt = reply.createdAt;
+        replyDto.updatedAt = reply.updatedAt;
 
-        if (accessType === RoleAccessType.MEMBER && chat.isAnonymous == true) {
-            chatDto.userId = null;
+        if (accessType === RoleAccessType.MEMBER && reply.isAnonymous == true) {
+            replyDto.userId = null;
         } else {
-            chatDto.userId = chat.userId;
+            replyDto.userId = reply.userId;
         }
 
-        const commentsDto = chat.comments.map(comment => {
+        const commentsDto = reply.comments.map(comment => {
             const commentDto = new CommentResponseDto();
             commentDto.id = comment.id;
-            commentDto.chatId = comment.chatId;
+            commentDto.replyId = comment.replyId;
             commentDto.userId = comment.userId;
             commentDto.content = comment.content;
             commentDto.isAnonymous = comment.isAnonymous;
@@ -65,14 +65,14 @@ export function mapToPostResponseDto(post: Post, accessType: RoleAccessType, cha
             if (accessType === RoleAccessType.MEMBER && comment.isAnonymous == true) {
                 comment.userId = null;
             } else {
-                comment.userId = chat.userId;
+                comment.userId = reply.userId;
             }
             return commentDto
         })
-        chatDto.comments = commentsDto
-        return chatDto
+        replyDto.comments = commentsDto
+        return replyDto
     })
-    dto.chats = chatsDto
+    dto.replies = repliesDto
 
     return dto
 }
